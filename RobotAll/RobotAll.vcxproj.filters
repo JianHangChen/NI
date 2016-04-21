@@ -1,0 +1,375 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="OpenGL">
+      <UniqueIdentifier>{2009ead1-f8eb-4d31-a0d0-0ce3c998b2d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pattern  Generator">
+      <UniqueIdentifier>{57310b5a-5616-4d7f-9949-d94b00b3cead}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="USB &amp; CAN protocol">
+      <UniqueIdentifier>{aa4e0c15-45ab-4a2f-a4fc-1fd2d3ecb133}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SoundPlay">
+      <UniqueIdentifier>{a8a8f312-4922-4622-ad77-b322ca60af2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL_Arm">
+      <UniqueIdentifier>{8a5ad73e-1304-45f5-b7bc-52e41426d421}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL_Leg">
+      <UniqueIdentifier>{ebe99955-7bbe-4967-a22b-fa07ee479654}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IMU">
+      <UniqueIdentifier>{1d929d2b-39f5-4320-b89c-a83ca3846224}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="COGestimate">
+      <UniqueIdentifier>{8bda988a-10af-4dc3-bcc0-553cd0634d40}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="res\RobotAll.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\RobotAll.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="DataLen_RA.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="RobotAll.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RobotAllDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern Generator\FwdKine.h">
+      <Filter>Pattern  Generator</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern Generator\Kine.h">
+      <Filter>Pattern  Generator</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern Generator\MatOptInterface.h">
+      <Filter>Pattern  Generator</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL\glut.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL\OpenGLControl.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL\OpenGLDevice.h">
+      <Filter>OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="USB &amp; CAN protocol\DataProcess.h">
+      <Filter>USB &amp; CAN protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="USB &amp; CAN protocol\serial_port.h">
+      <Filter>USB &amp; CAN protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="MainLoops.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern Generator\QuaternionRotation.h">
+      <Filter>Pattern  Generator</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern Generator\YMatLite.h">
+      <Filter>Pattern  Generator</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern Generator\GlobalConst.h">
+      <Filter>Pattern  Generator</Filter>
+    </ClInclude>
+    <ClInclude Include="USB &amp; CAN protocol\ConstIO.h">
+      <Filter>USB &amp; CAN protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern Generator\LQSISolver.h">
+      <Filter>Pattern  Generator</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundPlay.h">
+      <Filter>SoundPlay</Filter>
+    </ClInclude>
+    <ClInclude Include="QFwdKine.h">
+      <Filter>Pattern  Generator</Filter>
+    </ClInclude>
+    <ClInclude Include="GLModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model_LEG\center_100.h">
+      <Filter>OpenGL_Leg</Filter>
+    </ClInclude>
+    <ClInclude Include="model_LEG\LLeg01_100.h">
+      <Filter>OpenGL_Leg</Filter>
+    </ClInclude>
+    <ClInclude Include="model_LEG\LLeg02_100.h">
+      <Filter>OpenGL_Leg</Filter>
+    </ClInclude>
+    <ClInclude Include="model_LEG\LLeg03_100.h">
+      <Filter>OpenGL_Leg</Filter>
+    </ClInclude>
+    <ClInclude Include="model_LEG\LLeg04_100.h">
+      <Filter>OpenGL_Leg</Filter>
+    </ClInclude>
+    <ClInclude Include="model_LEG\LLeg05_100.h">
+      <Filter>OpenGL_Leg</Filter>
+    </ClInclude>
+    <ClInclude Include="model_LEG\LLeg06_100.h">
+      <Filter>OpenGL_Leg</Filter>
+    </ClInclude>
+    <ClInclude Include="model_LEG\RLeg01_100.h">
+      <Filter>OpenGL_Leg</Filter>
+    </ClInclude>
+    <ClInclude Include="model_LEG\RLeg02_100.h">
+      <Filter>OpenGL_Leg</Filter>
+    </ClInclude>
+    <ClInclude Include="model_LEG\RLeg03_100.h">
+      <Filter>OpenGL_Leg</Filter>
+    </ClInclude>
+    <ClInclude Include="model_LEG\RLeg04_100.h">
+      <Filter>OpenGL_Leg</Filter>
+    </ClInclude>
+    <ClInclude Include="model_LEG\RLeg05_100.h">
+      <Filter>OpenGL_Leg</Filter>
+    </ClInclude>
+    <ClInclude Include="model_LEG\RLeg06_100.h">
+      <Filter>OpenGL_Leg</Filter>
+    </ClInclude>
+    <ClInclude Include="model_ARM\LArm01_100.h">
+      <Filter>OpenGL_Arm</Filter>
+    </ClInclude>
+    <ClInclude Include="model_ARM\LArm02_100.h">
+      <Filter>OpenGL_Arm</Filter>
+    </ClInclude>
+    <ClInclude Include="model_ARM\LArm03_100.h">
+      <Filter>OpenGL_Arm</Filter>
+    </ClInclude>
+    <ClInclude Include="model_ARM\LArm04_100.h">
+      <Filter>OpenGL_Arm</Filter>
+    </ClInclude>
+    <ClInclude Include="model_ARM\LArm05_100.h">
+      <Filter>OpenGL_Arm</Filter>
+    </ClInclude>
+    <ClInclude Include="model_ARM\LArm06_100.h">
+      <Filter>OpenGL_Arm</Filter>
+    </ClInclude>
+    <ClInclude Include="model_ARM\RArm01_100.h">
+      <Filter>OpenGL_Arm</Filter>
+    </ClInclude>
+    <ClInclude Include="model_ARM\RArm02_100.h">
+      <Filter>OpenGL_Arm</Filter>
+    </ClInclude>
+    <ClInclude Include="model_ARM\RArm03_100.h">
+      <Filter>OpenGL_Arm</Filter>
+    </ClInclude>
+    <ClInclude Include="model_ARM\RArm04_100.h">
+      <Filter>OpenGL_Arm</Filter>
+    </ClInclude>
+    <ClInclude Include="model_ARM\RArm05_100.h">
+      <Filter>OpenGL_Arm</Filter>
+    </ClInclude>
+    <ClInclude Include="model_ARM\RArm06_100.h">
+      <Filter>OpenGL_Arm</Filter>
+    </ClInclude>
+    <ClInclude Include="model_ARM\waist01_100.h">
+      <Filter>OpenGL_Arm</Filter>
+    </ClInclude>
+    <ClInclude Include="model_ARM\waist02_100.h">
+      <Filter>OpenGL_Arm</Filter>
+    </ClInclude>
+    <ClInclude Include="StlReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TriMeshReaderBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sensor\laser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sensor\UrgLaser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TwinCAT_COM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern Generator\neck.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Task_RLeg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Task_LLeg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IMU\i3dmgx3_Cmd.h">
+      <Filter>IMU</Filter>
+    </ClInclude>
+    <ClInclude Include="IMU\i3dmgx3_Cont.h">
+      <Filter>IMU</Filter>
+    </ClInclude>
+    <ClInclude Include="IMU\i3dmgx3_Errors.h">
+      <Filter>IMU</Filter>
+    </ClInclude>
+    <ClInclude Include="IMU\i3dmgx3_readWriteDR.h">
+      <Filter>IMU</Filter>
+    </ClInclude>
+    <ClInclude Include="IMU\i3dmgx3_Serial.h">
+      <Filter>IMU</Filter>
+    </ClInclude>
+    <ClInclude Include="IMU\i3dmgx3_Utils.h">
+      <Filter>IMU</Filter>
+    </ClInclude>
+    <ClInclude Include="IMU\i3dmgx3_Utils_CM.h">
+      <Filter>IMU</Filter>
+    </ClInclude>
+    <ClInclude Include="IMU\IMU.h">
+      <Filter>IMU</Filter>
+    </ClInclude>
+    <ClInclude Include="SlidingModeCtrl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="COGestimate\ekfilter.hpp">
+      <Filter>COGestimate</Filter>
+    </ClInclude>
+    <ClInclude Include="COGestimate\estimate.h">
+      <Filter>COGestimate</Filter>
+    </ClInclude>
+    <ClInclude Include="COGestimate\kfilter.hpp">
+      <Filter>COGestimate</Filter>
+    </ClInclude>
+    <ClInclude Include="COGestimate\kmatrix.hpp">
+      <Filter>COGestimate</Filter>
+    </ClInclude>
+    <ClInclude Include="COGestimate\plane.h">
+      <Filter>COGestimate</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="RobotAll.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RobotAllDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mfcconsole.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern Generator\FwdKine.cpp">
+      <Filter>Pattern  Generator</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern Generator\Kine.cpp">
+      <Filter>Pattern  Generator</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern Generator\MatOptInterface.cpp">
+      <Filter>Pattern  Generator</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGL\OpenGLControl.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGL\OpenGLDevice.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="USB &amp; CAN protocol\DataProcess.cpp">
+      <Filter>USB &amp; CAN protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="USB &amp; CAN protocol\serial_port.cpp">
+      <Filter>USB &amp; CAN protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="MainLoops.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern Generator\QuaternionRotation.cpp">
+      <Filter>Pattern  Generator</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern Generator\YMatLite.cpp">
+      <Filter>Pattern  Generator</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern Generator\LQSISolver.cpp">
+      <Filter>Pattern  Generator</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundPlay.cpp">
+      <Filter>SoundPlay</Filter>
+    </ClCompile>
+    <ClCompile Include="QFwdKine.cpp">
+      <Filter>Pattern  Generator</Filter>
+    </ClCompile>
+    <ClCompile Include="GLModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sensor\laser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Sensor\UrgLaser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TwinCAT_COM.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern Generator\neck.cpp">
+      <Filter>Pattern  Generator</Filter>
+    </ClCompile>
+    <ClCompile Include="IMU\i3dmgx3_CM_CMD.c">
+      <Filter>IMU</Filter>
+    </ClCompile>
+    <ClCompile Include="IMU\i3dmgx3_readWriteDR.c">
+      <Filter>IMU</Filter>
+    </ClCompile>
+    <ClCompile Include="IMU\i3dmgx3_SerialWin.c">
+      <Filter>IMU</Filter>
+    </ClCompile>
+    <ClCompile Include="IMU\i3dmgx3_Utils.c">
+      <Filter>IMU</Filter>
+    </ClCompile>
+    <ClCompile Include="IMU\i3dmgx3_Utils_CM.c">
+      <Filter>IMU</Filter>
+    </ClCompile>
+    <ClCompile Include="IMU\IMU.cpp">
+      <Filter>IMU</Filter>
+    </ClCompile>
+    <ClCompile Include="SlidingModeCtrl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="COGestimate\plane.cpp">
+      <Filter>COGestimate</Filter>
+    </ClCompile>
+    <ClCompile Include="COGestimate\kstatics.cpp">
+      <Filter>COGestimate</Filter>
+    </ClCompile>
+    <ClCompile Include="COGestimate\kmatrix.cpp">
+      <Filter>COGestimate</Filter>
+    </ClCompile>
+    <ClCompile Include="COGestimate\estimate.cpp">
+      <Filter>COGestimate</Filter>
+    </ClCompile>
+    <ClCompile Include="COGestimate\ekfilter.cpp">
+      <Filter>COGestimate</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="RobotAll.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

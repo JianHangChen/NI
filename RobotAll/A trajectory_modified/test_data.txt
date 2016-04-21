@@ -1,0 +1,2 @@
+hit_count  4348  LFX_max_count   4352  step_length   0  swingx_now  0  modified in   acceleration phase 
+

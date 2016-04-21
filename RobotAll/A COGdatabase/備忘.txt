@@ -1,0 +1,6 @@
+COG database 
+gLQstate 都是從 1000count 後開始
+
+gogdata220   8216count  20140408
+
+swing foot trajectory 是8216

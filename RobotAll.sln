@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RobotAll", "RobotAll\RobotAll.vcxproj", "{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		DebugDoubleDLL|Win32 = DebugDoubleDLL|Win32
+		DebugDoubleLib|Win32 = DebugDoubleLib|Win32
+		DebugSingleDLL|Win32 = DebugSingleDLL|Win32
+		DebugSingleLib|Win32 = DebugSingleLib|Win32
+		Release|Win32 = Release|Win32
+		ReleaseDoubleDLL|Win32 = ReleaseDoubleDLL|Win32
+		ReleaseDoubleLib|Win32 = ReleaseDoubleLib|Win32
+		ReleaseSingleDLL|Win32 = ReleaseSingleDLL|Win32
+		ReleaseSingleLib|Win32 = ReleaseSingleLib|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.Debug|Win32.Build.0 = Debug|Win32
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.DebugDoubleDLL|Win32.ActiveCfg = Debug|Win32
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.DebugDoubleDLL|Win32.Build.0 = Debug|Win32
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.DebugDoubleLib|Win32.ActiveCfg = Debug|Win32
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.DebugDoubleLib|Win32.Build.0 = Debug|Win32
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.DebugSingleDLL|Win32.ActiveCfg = Debug|Win32
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.DebugSingleDLL|Win32.Build.0 = Debug|Win32
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.DebugSingleLib|Win32.ActiveCfg = Debug|Win32
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.DebugSingleLib|Win32.Build.0 = Debug|Win32
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.Release|Win32.ActiveCfg = Release|Win32
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.Release|Win32.Build.0 = Release|Win32
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.ReleaseDoubleDLL|Win32.ActiveCfg = Release|Win32
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.ReleaseDoubleDLL|Win32.Build.0 = Release|Win32
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.ReleaseDoubleLib|Win32.ActiveCfg = Release|Win32
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.ReleaseDoubleLib|Win32.Build.0 = Release|Win32
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.ReleaseSingleDLL|Win32.ActiveCfg = Release|Win32
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.ReleaseSingleDLL|Win32.Build.0 = Release|Win32
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.ReleaseSingleLib|Win32.ActiveCfg = Release|Win32
+		{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}.ReleaseSingleLib|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
