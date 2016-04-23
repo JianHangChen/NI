@@ -251,6 +251,8 @@ public:
 	int JaMRow; // Jacobian matrix 的row數
 	int JaNCol; // Jacobian matrix 的column數
 	
+
+
 	// 計算Jacobian 用的 temp 暫存區
 	double* tempJ;
 	double* tempJT;
