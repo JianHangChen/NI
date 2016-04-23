@@ -37,10 +37,10 @@ Note: None
 #include <fstream>
 #include "Kine.h"
 #include <math.h>
-
+#include <Eigen\Dense>
 
 using namespace std;
-
+using namespace Eigen;
 //#define PI 3.1415926  // 在Global Constant 設定
 #define OldRobot 0 //Kine.cpp r_com mass_com 參數指定
 	
