@@ -1637,13 +1637,17 @@ void Kine::CCDCOGSolve(QFwdKine* QLeg,FwdKine* FLeg,double* tCOG, double* tRFixd
 	} //While
 }
 
-void kine::calc_float_Jacobian( int j,double * result )
+void Kine::calc_float_Jacobian(double endeff[3],double * result )
 {
 	/************************************************************************
 	 input:   int j,  
 	 output: double * result 
 	 NOTE: compute float jacobian
-	 for example: J_floatBase_LL = [ eye(3) -cross2mat(Pb2LL) ;zeros(3,3)   eye(3) ];
+	 	 for example: J_floatBase_LL = [ eye(3) -cross2mat(Pb2LL) ;zeros(3,3)   eye(3) ];
+		 for example: J_floatBase_RL = [ eye(3) -cross2mat(Pb2RL) ;zeros(3,3)   eye(3) ];
+	 
+	 Examle: double EndEff[3]; double float_ja_LL[36]  calc_float_Jacobian(EndEff,float_ja_LL)
+
 	 That's not full foat Jacobian. It's just a part of it.
 	************************************************************************/
 	double I3[9];
@@ -1655,7 +1659,7 @@ void kine::calc_float_Jacobian( int j,double * result )
 
 	Mat_I_nxn(I3,3);
 	Mat_O_mxn(O3,3,3);
-	MatMiuAB(link[j].p,link[BASE].p,P_b2j,3);
+	MatMiuAB(endeff,DHOrigin,P_b2j,3);
 	cross2Mat(P_b2j,cross2mat);
 	MatScalarMul(cross2mat,9,-1,cross2mat);
 
@@ -1666,6 +1670,38 @@ void kine::calc_float_Jacobian( int j,double * result )
 
 }
 
+
+void Kine::calc_sub_Jacobian(vector<int> route,double *result)
+{
+	/************************************************************************
+	 input:    vector<int> route ( link index array ),double *result
+	 output: 
+	 NOTE: compute fixed traditional jacobian 
+			last element of route is end point
+	************************************************************************/
+	int N = route.size();
+	int n = N-1;
+	int j;
+	double z[3],r[3],zxr[3];
+	
+	for ( int i = 0; i<n;i++ )
+	{
+		j = route[i];
+		MatMiuAB(link[route.back()].p,link[j].p,r,3);
+		MatMulAB(link[j].R,3,3,link[j].z,3,1,z);
+		cross2Vd(z,r,zxr);
+	
+		result[0+i] = zxr[0];
+		result[n+i] = zxr[1];
+		result[2*n+i] = zxr[2];
+		result[3*n+i] = z[0];
+		result[4*n+i] = z[1];
+		result[5*n+i] = z[2];
+
+	}
+
+}
+
 void Kine::FloatJacobian(void)
 {
 	/******************************************************************
@@ -1673,13 +1709,11 @@ void Kine::FloatJacobian(void)
 	output: void
 
 	Note:
-	// 求出機器人整體的floating base Jacobian matrix 
+	// 求出機器人整體的floating base Jacobian matrix  160423
 	******************************************************************/
 	// dth => [左腳6軸 ; 右腳6軸 ; 左手6軸 ; 右手6軸]
 	// selIK = 0 : left foot is the supporter
     // selIK = 1 : right foot is the supporter
-
-	
 	//%% 將目標軌跡存取出來
 	//tarTrajSwingPos = trajSwing(:,swingTrajCount);
 	//RL_Target.p = trajSwing(:,swingTrajCount);
@@ -1705,17 +1739,31 @@ void Kine::FloatJacobian(void)
 
 	//Jf 1,2,3 row   [J_floatBase_LL   Ja_LL        zeros(6,6)]
 	 //J_floatBase_LL = [ eye(3) -cross2mat(Pb2LL) ;zeros(3,3)   eye(3) ];
-	for (int i = 0 ; i < 6 ; i++) // 先跑6次 1~6 column  4~6 row(1)
-		{
-			Jf->data[ind_x] = -ZAxisAll->data[ind_source];
-			Jf->data[ind_y] = -ZAxisAll->data[ind_source+1];
-			Ja->data[ind_z] = -ZAxisAll->data[ind_source+2];
+	double float_ja_LL[36];	double float_ja_RL[36]; double float_ja_LA[36]; double float_ja_RA[36];
 
-			ind_source += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
+	double EndEffLL[3]; double EndEffRL[3]; double EndEffLA[3]; double EndEffRA[3];
+
+	EndEffLL[0] = CrdAll->data[12];
+	EndEffLL[1] = CrdAll->data[13];
+	EndEffLL[2] = CrdAll->data[14];
+
+	EndEffRL[0] = CrdAll->data[51];
+	EndEffRL[1] = CrdAll->data[52];
+	EndEffRL[2] = CrdAll->data[53];
+
+	EndEffLA[0] = CrdAll->data[102];
+	EndEffLA[1] = CrdAll->data[103];
+	EndEffLA[2] = CrdAll->data[104];
+
+	EndEffRA[0] = CrdAll->data[132];
+	EndEffRA[1] = CrdAll->data[133];
+	EndEffRA[2] = CrdAll->data[134];
+
+	calc_float_Jacobian(EndEffLL,float_ja_LL);
+	calc_float_Jacobian(EndEffRL,float_ja_RL);
+	//calc_float_Jacobian(EndEffLA,float_ja_LA);
+	//calc_float_Jacobian(EndEffRA,float_ja_RA);
+
 
 	if (selIK == LeftSupport)
 	{

@@ -44,9 +44,12 @@ public:
 	~Kine(void); // 解構子
 
 	void InitKineTrains(void); // 初始化DH parameters 
-	void FindFK(void); // 計算所有forward kinematics
+	void FindFK(void); // 計算所有forward kinematics 
 	void ComputeJacobians(void); // 計算整個機器人的Jacobian matirx
-	void FloatJacobian(void); // 計算整個機器人的floating base Jacobian matirx
+	void calc_float_Jacobian(double endeff[],double * result );//compute float jacobian for specific endeffector 160425
+	void FloatJacobian(void); // 計算整個機器人的floating base Jacobian matirx 160425
+	void calc_sub_Jacobian(vector<int> route,double *result); //compute fixed traditional jacobian last element of route is end point
+
 	// 計算swing trajectory
 	void GenSwingTraj(double v0, double a0, double x1_percentage, double y1, double v1, double x2, double y2, double v2, double a2, int Np, int KeepPosCount, double* resultXY, double* resultZ);	
 	// 計算swing trajectory	修改版 看起來更像人又不會損失很多穩定性
@@ -866,4 +869,15 @@ public:
 		double Torq_I[2];	// 一秒200count的積分window
 		static const int I_window = 200;
 		double Torq_I_add[2*I_window];
+
+
+		inline void cross2Mat( double *a , double * result); //160425 screw matrix(vector corss product to matrix)
 };
+
+
+inline void Kine::cross2Mat( double *a , double * result)
+{
+	result[0] = 0;result[1] = -a[2];result[2] = a[1];
+	result[3] = a[2];result[4] = 0;result[5] = -a[0];
+	result[6] = -a[1];result[7] = a[0];result[8] = 0;
+}
