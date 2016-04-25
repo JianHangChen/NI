@@ -46,6 +46,7 @@ public:
 	void InitKineTrains(void); // 初始化DH parameters 
 	void FindFK(void); // 計算所有forward kinematics
 	void ComputeJacobians(void); // 計算整個機器人的Jacobian matirx
+	void FloatJacobian(void); // 計算整個機器人的floating base Jacobian matirx
 	// 計算swing trajectory
 	void GenSwingTraj(double v0, double a0, double x1_percentage, double y1, double v1, double x2, double y2, double v2, double a2, int Np, int KeepPosCount, double* resultXY, double* resultZ);	
 	// 計算swing trajectory	修改版 看起來更像人又不會損失很多穩定性
@@ -252,6 +253,9 @@ public:
 	int JaNCol; // Jacobian matrix 的column數
 	
 
+	YMatLite* Jf; // full floating Jacobian matrix
+	int JfMRow; // full floating Jacobian matrix 的row數 (18 for 2 legs)
+	int JfNCol; // full floating Jacobian matrix 的column數(18 for 2legs)
 
 	// 計算Jacobian 用的 temp 暫存區
 	double* tempJ;

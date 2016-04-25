@@ -93,7 +93,7 @@ Kine::Kine(void) // not used
 	JaNCol = 24;
 	Ja = new YMatLite(JaMRow,JaNCol);
 
-	//floating base Ja	150423
+	//floating base Ja	160423
 	//Jf = [ J_floatBase_LL   Ja_LL        zeros(6,6);...
     //     J_floatBase_RL   zeros(6,6)   Ja_RL     ;...
     //     J_floatBase_COG  Ja_LL_COG    Ja_RL_COG ;...
@@ -1637,9 +1637,36 @@ void Kine::CCDCOGSolve(QFwdKine* QLeg,FwdKine* FLeg,double* tCOG, double* tRFixd
 	} //While
 }
 
+void kine::calc_float_Jacobian( int j,double * result )
+{
+	/************************************************************************
+	 input:   int j,  
+	 output: double * result 
+	 NOTE: compute float jacobian
+	 for example: J_floatBase_LL = [ eye(3) -cross2mat(Pb2LL) ;zeros(3,3)   eye(3) ];
+	 That's not full foat Jacobian. It's just a part of it.
+	************************************************************************/
+	double I3[9];
+	double O3[9];
+	double P_b2j[3];
+	double cross2mat[9];
+	double tmp1[18];
+	double tmp2[18];
 
+	Mat_I_nxn(I3,3);
+	Mat_O_mxn(O3,3,3);
+	MatMiuAB(link[j].p,link[BASE].p,P_b2j,3);
+	cross2Mat(P_b2j,cross2mat);
+	MatScalarMul(cross2mat,9,-1,cross2mat);
 
-void Kine::floatJacobian(void)
+	Mat_A_addcol_B(I3,3,3,cross2mat,3,3,tmp1);
+	Mat_A_addcol_B(O3,3,3,I3,3,3,tmp2);
+	
+	Mat_A_addrow_B(tmp1,3,6,tmp2,3,6,result);
+
+}
+
+void Kine::FloatJacobian(void)
 {
 	/******************************************************************
 	input: void
@@ -1667,6 +1694,7 @@ void Kine::floatJacobian(void)
     //Jf = [ J_floatBase_LL   Ja_LL        zeros(6,6);...
     //     J_floatBase_RL   zeros(6,6)   Ja_RL     ;...
     //     J_floatBase_COG  Ja_LL_COG    Ja_RL_COG ;...
+	//          or  zeros(3,3) eye(3) zeros(3,12)];
     //     zeros(3,6)       -1.*Ja_LL(4:6,:) zeros(3,6)     ];  
 
 	// when selIK = 0,   dx = [sw_x sw_y sw_z sw_tx sw_ty sw_tz fix_tx fix_ty fix_tz COGx COGy COGz ]
@@ -1674,6 +1702,20 @@ void Kine::floatJacobian(void)
 	// 被排成相同的!!
 	// when selIK = 0,   dx = [sw_x sw_y sw_z sw_tx sw_ty sw_tz fix_tx fix_ty fix_tz LA RA COGx COGy COGz ]
 	// when selIK = 1,2, dx = [sw_x sw_y sw_z sw_tx sw_ty sw_tz fix_tx fix_ty fix_tz LA RA COGx COGy COGz ]
+
+	//Jf 1,2,3 row   [J_floatBase_LL   Ja_LL        zeros(6,6)]
+	 //J_floatBase_LL = [ eye(3) -cross2mat(Pb2LL) ;zeros(3,3)   eye(3) ];
+	for (int i = 0 ; i < 6 ; i++) // 先跑6次 1~6 column  4~6 row(1)
+		{
+			Jf->data[ind_x] = -ZAxisAll->data[ind_source];
+			Jf->data[ind_y] = -ZAxisAll->data[ind_source+1];
+			Ja->data[ind_z] = -ZAxisAll->data[ind_source+2];
+
+			ind_source += 3;
+			ind_x += 1;
+			ind_y += 1;
+			ind_z += 1;
+		}
 
 	if (selIK == LeftSupport)
 	{
