@@ -10,6 +10,8 @@ Functions:
      InvSqMat() AbsDetSqMat()  SubMat() SubMatIndex() MatScalarMul()
      MatMulAB() MatMulAtB() MatMulABt() MatMiuAB() MatAddAB()
 
+	Mat_weighted_mean() Mat_I_nxn() Mat_O_mxn() Mat_y_Ax_b() Mat_A_addcol_B( ) 
+	Mat_A_addrow_B( ) Mat_A_B_At( ) showMat() showVar()
 Classes: None
 
 Description:
@@ -816,4 +818,124 @@ logical SELECT_eigen(double *ar,double *ai)//test eigenvalue if > 1.0 then move
 		flag=0;
 	}
 	return flag;//*ar < 0.0;//true;
+}
+
+void showMat(double* A,int Nrow, int Ncol, char * MatName )
+{
+	cout << "-------------------Data:"<< MatName <<"-------------------------- " << endl;
+
+	for (int i = 0 ; i < Nrow ; i++)
+	{
+		for (int j = 0 ; j < Ncol ; j++)
+		{
+
+			if (A[j+i*Ncol] == 0)
+				cout<< "\t" << "0" ;
+			else if (fabs(A[j+i*Ncol]) < 0.0001)
+				cout << "\t"<< "0.0";
+			else
+				cout << "\t"<< A[j+i*Ncol] ;
+		}
+		cout << endl;
+	}
+
+	cout << endl;
+}
+void Mat_weighted_mean( double* A, int MA, int NA,double WA, double* B, int MB, int NB,double WB, double* result)
+{
+	double w_A[3];
+	MatScalarMul(A,MA*NA,WA,w_A);
+
+	double w_B[3];
+	MatScalarMul(B,MB*NB,WB,w_B);
+
+	MatAddAB(w_A,w_B,result,3);
+	MatScalarMul(result,3,1/(WA+WB),result);
+}
+
+void Mat_y_Ax_b( double*A, int MA, int NA, double *x, int Mx ,int Nx, double *b, double *result )
+{
+	MatMulAB(A,MA,NA,x,Mx,Nx,result);
+	MatAddAB(result,b,result,MA*Nx);
+}
+
+void Mat_I_nxn( double* result, int n )
+{
+	for ( int i = 0 ; i < n*n ; i++ )
+	{
+		if ( (i%(n+1)) == 0)
+			result[i] = 1; 
+		else
+			result[i] = 0;
+	}
+}
+
+void Mat_O_mxn(double* result,int m, int n)
+{
+	int size = m*n;
+	for ( int i =0 ;i<size;i++ )
+	{
+		result[i] = 0;
+	}
+}
+void Mat_A_addcol_B( double* A, int MA, int NA, double* B, int MB, int NB, double* result )
+{
+	if (MA!=MB) 
+	{
+		printf("Wrong Matrix Dimension for Mat_A_addcol_B");
+		system("pause");
+	}
+	int M = MA;
+	int N = NA+NB;
+
+	int i_A(0),i_B(0),k(0);
+
+	for(int i =0 ;i<M*N;i++)
+	{
+		k = i%N;
+		if (k < NA )
+		{
+			result[i] =  A[i_A];
+			i_A++;
+		} 
+		else
+		{ 
+			result[i] =  B[i_B];
+			i_B++;
+		}
+	}
+	
+}
+void Mat_A_addrow_B(double* A, int MA, int NA, double* B, int MB, int NB, double* result)
+{
+	if (NA!=NB) 
+	{
+		printf("Wrong Matrix Dimension for Mat_A_addrow_B");
+		system("pause");
+	}
+	int M = MA+MB;
+	int N = NA;
+	int i_A(0),i_B(0);
+
+	for (int i = 0; i<M*N ; i++)
+	{
+		if (i<MA*NA)
+		{
+			result[i] = A[i_A];
+			i_A++;
+		} 
+		else
+		{
+			result[i] = B[i_B];
+			i_B++;
+		}
+	}
+
+}
+
+void showVar(double x,char * VarName)
+{
+	cout << "-------------------Data:"<<VarName<<"---------------------------" << endl;
+	cout<<"\t"<<x<<endl;
+	cout << endl;
 }
