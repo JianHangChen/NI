@@ -47,8 +47,10 @@ public:
 	void FindFK(void); // 計算所有forward kinematics 
 	void ComputeJacobians(void); // 計算整個機器人的Jacobian matirx
 	void calc_float_Jacobian(double endeff[],double * result );//compute float jacobian for specific endeffector 160425
+	void calc_float_cogJacobian(double * result );//compute float jacobian for cog 160426
 	void FloatJacobian(void); // 計算整個機器人的floating base Jacobian matirx 160425
-	void calc_sub_Jacobian(vector<int> route,double *result); //compute fixed traditional jacobian last element of route is end point
+	void calc_sub_Jacobian(int SubIndex,double *result); //compute  traditional jacobian last element of route is end point 160426
+	void calc_sub_cogJacobian(int SubIndex, double *result);//compute  cog jacobian 160427
 
 	// 計算swing trajectory
 	void GenSwingTraj(double v0, double a0, double x1_percentage, double y1, double v1, double x2, double y2, double v2, double a2, int Np, int KeepPosCount, double* resultXY, double* resultZ);	

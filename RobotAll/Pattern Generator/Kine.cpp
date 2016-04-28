@@ -1640,12 +1640,12 @@ void Kine::CCDCOGSolve(QFwdKine* QLeg,FwdKine* FLeg,double* tCOG, double* tRFixd
 void Kine::calc_float_Jacobian(double endeff[3],double * result )
 {
 	/************************************************************************
-	 input:   int j,  
+	 input:   double endeff[3] 
 	 output: double * result 
 	 NOTE: compute float jacobian
 	 	 for example: J_floatBase_LL = [ eye(3) -cross2mat(Pb2LL) ;zeros(3,3)   eye(3) ];
 		 for example: J_floatBase_RL = [ eye(3) -cross2mat(Pb2RL) ;zeros(3,3)   eye(3) ];
-	 
+	     special case:    J_floatBase_COG = [ eye(3) -cross2mat(Pb2COG)]; because COG has no rotation part
 	 Examle: double EndEff[3]; double float_ja_LL[36]  calc_float_Jacobian(EndEff,float_ja_LL)
 
 	 That's not full foat Jacobian. It's just a part of it.
@@ -1669,39 +1669,282 @@ void Kine::calc_float_Jacobian(double endeff[3],double * result )
 	Mat_A_addrow_B(tmp1,3,6,tmp2,3,6,result);
 
 }
-
-
-void Kine::calc_sub_Jacobian(vector<int> route,double *result)
+void Kine::calc_float_cogJacobian(double * result )
 {
 	/************************************************************************
-	 input:    vector<int> route ( link index array ),double *result
-	 output: 
-	 NOTE: compute fixed traditional jacobian 
-			last element of route is end point
-	************************************************************************/
-	int N = route.size();
-	int n = N-1;
-	int j;
-	double z[3],r[3],zxr[3];
-	
-	for ( int i = 0; i<n;i++ )
-	{
-		j = route[i];
-		MatMiuAB(link[route.back()].p,link[j].p,r,3);
-		MatMulAB(link[j].R,3,3,link[j].z,3,1,z);
-		cross2Vd(z,r,zxr);
-	
-		result[0+i] = zxr[0];
-		result[n+i] = zxr[1];
-		result[2*n+i] = zxr[2];
-		result[3*n+i] = z[0];
-		result[4*n+i] = z[1];
-		result[5*n+i] = z[2];
+	 input:     
+	 output: double * result 
+	 NOTE: compute float jacobian
+	     special case:    J_floatBase_COG = [ eye(3) -cross2mat(Pb2COG)]; because COG has no rotation part
+	 Examle: double cog[3]; double float_ja_cog[18]  calc_float_Jacobian(cog,float_ja_cog)
 
-	}
+	 That's not full foat Jacobian. It's just a part of it.
+	************************************************************************/
+	double I3[9];
+	double P_b2j[3];
+	double cross2mat[9];
+
+	Mat_I_nxn(I3,3);
+	MatMiuAB(COG,DHOrigin,P_b2j,3);
+	cross2Mat(P_b2j,cross2mat);
+	MatScalarMul(cross2mat,9,-1,cross2mat);
+
+	Mat_A_addcol_B(I3,3,3,cross2mat,3,3,result);
 
 }
 
+void Kine::calc_sub_Jacobian(int SubIndex, double *result)
+{
+	/************************************************************************
+	 input:    int SubIndex,double *result 
+	 output: 
+	 NOTE: compute fixed traditional jacobian  like Ja_LL and Ja_RL
+    //SubIndex=1 Left Leg, 
+			   2 Right Leg
+
+	// Ja_LL = [Zx(end-axis[i].p)
+	//			Z	]
+	//Jf = [ J_floatBase_LL   Ja_LL        zeros(6,6);...
+    //     J_floatBase_RL   zeros(6,6)   Ja_RL     ;...
+    //     J_floatBase_COG  Ja_LL_COG    Ja_RL_COG ;...
+	//          or  zeros(3,3) eye(3) zeros(3,12)];
+    //     zeros(3,6)       -1.*Ja_LL(4:6,:) zeros(3,6)     ];  
+
+			last element of route is end point
+	************************************************************************/
+
+	int n =6; //column
+	if(SubIndex==1)	//left leg sub jacobian	
+	{	
+
+		EndEff[0] = CrdAll->data[12];
+		EndEff[1] = CrdAll->data[13];
+		EndEff[2] = CrdAll->data[14];
+
+		ind_source = 0;
+		ind_dest = 0;
+		for (int i = 0 ; i <6 ; i++)//left腳每一軸到left腳endefector的距離
+		{
+			EndEffDiff[ind_dest] =  EndEff[0] - CrdAll->data[ind_source] ;
+			EndEffDiff[ind_dest+1] = EndEff[1] - CrdAll->data[ind_source+1] ;
+			EndEffDiff[ind_dest+2] = EndEff[2] - CrdAll->data[ind_source+2] ;
+			ind_source += 3;
+			ind_dest += 3;
+		}
+
+		ind_source = 0;
+		ind_dest = 0;
+		for (int i = 0 ; i < 6 ; i++) // 跑6次 1~6 column 1~3 row Z x r,  4~6 row  Z1,...,Z6
+		{
+
+			Cross2Vd(&ZAxisAll->data[ind_source],&EndEffDiff[ind_dest],temp_cross);
+			result[0+i] = temp_cross[0];
+			result[n+i] = temp_cross[1];
+			result[2*n+i] = temp_cross[2];
+
+			result[3*n+i] = ZAxisAll->data[ind_source];
+			result[4*n+i] = ZAxisAll->data[ind_source+1];
+			result[5*n+i] = ZAxisAll->data[ind_source+2];
+
+			ind_source += 3;
+			ind_dest += 3;
+		}
+	}
+
+	else if(SubIndex==2)	//right leg sub jacobian	
+	{	
+
+		EndEff[0] = CrdAll->data[51];
+		EndEff[1] = CrdAll->data[52];
+		EndEff[2] = CrdAll->data[53];
+
+		ind_source = 39;
+		ind_dest = 0;
+		for (int i = 0 ; i <6 ; i++)//fixed(left)腳每一軸到swing(right)腳endefector的距離
+		{
+			EndEffDiff[ind_dest] =  EndEff[0] - CrdAll->data[ind_source] ;
+			EndEffDiff[ind_dest+1] = EndEff[1] - CrdAll->data[ind_source+1] ;
+			EndEffDiff[ind_dest+2] = EndEff[2] - CrdAll->data[ind_source+2] ;
+			ind_source += 3;
+			ind_dest += 3;
+		}
+
+		ind_source = 39;
+		ind_dest = 0;
+		for (int i = 0 ; i < 6 ; i++) // 跑6次 1~6 column 1~3 row Z x r,  4~6 row  Z1,...,Z6
+		{
+
+			Cross2Vd(&ZAxisAll->data[ind_source],&EndEffDiff[ind_dest],temp_cross);
+			result[0+i] = temp_cross[0];
+			result[n+i] = temp_cross[1];
+			result[2*n+i] = temp_cross[2];
+
+			result[3*n+i] = ZAxisAll->data[ind_source];
+			result[4*n+i] = ZAxisAll->data[ind_source+1];
+			result[5*n+i] = ZAxisAll->data[ind_source+2];
+
+			ind_source += 3;
+			ind_dest +=3;
+		}
+
+	}
+}
+void Kine::calc_sub_cogJacobian(int SubIndex, double *result)
+{
+	/************************************************************************
+	 input:    int SubIndex,double *result 
+	 output: 
+	 NOTE: compute fixed traditional jacobian  like Ja_LL_COG and Ja_RL_COG
+    //SubIndex=1 Left Leg, 
+			   2 Right Leg
+
+	// Ja_LL_COG = [Zx(cog-axis[i].p)]
+
+	//Jf = [ J_floatBase_LL   Ja_LL        zeros(6,6);...
+    //     J_floatBase_RL   zeros(6,6)   Ja_RL     ;...
+    //     J_floatBase_COG  Ja_LL_COG    Ja_RL_COG ;...
+	//          or  zeros(3,3) eye(3) zeros(3,12)];
+    //     zeros(3,6)       -1.*Ja_LL(4:6,:) zeros(3,6)     ];  
+
+			last element of route is end point
+	************************************************************************/
+		int n =6; // column number
+
+		if(SubIndex==1)//left leg
+		{
+		
+		// axis 6 LL ankle roll
+		temp_r_ef[0] = pv_stack[6]-CrdAll->data[15];
+		temp_r_ef[1] = pv_stack[7]-CrdAll->data[16];
+		temp_r_ef[2] = pv_stack[8]-CrdAll->data[17];
+
+		temp_scale = mass_com[2]/SumMass;
+		Cross2Vd(&ZAxisAll->data[15],temp_r_ef,temp_cross);
+
+		result[0+5] = temp_cross[0]*temp_scale;
+		result[n+5] = temp_cross[1]*temp_scale;
+		result[2*n+5] = temp_cross[2]*temp_scale;
+
+		// axis 5 LL ankle pitch
+		Cross2Vd(&ZAxisAll->data[12],temp_r_ef,temp_cross);
+		result[0+4] = temp_cross[0]*temp_scale;
+		result[n+4] = temp_cross[1]*temp_scale;
+		result[2*n+4] = temp_cross[2]*temp_scale;
+
+		// axis 4 LL knee pitch
+		temp_scale += mass_com[1]/SumMass;
+		temp_mass_sum = mass_com[1] + mass_com[2];
+		local_COG[0] = (pv_stack[3]*mass_com[1]+pv_stack[6]*mass_com[2])/temp_mass_sum;
+		local_COG[1] = (pv_stack[4]*mass_com[1]+pv_stack[7]*mass_com[2])/temp_mass_sum;
+		local_COG[2] = (pv_stack[5]*mass_com[1]+pv_stack[8]*mass_com[2])/temp_mass_sum;
+
+		temp_r_ef[0] = local_COG[0]-CrdAll->data[9];
+		temp_r_ef[1] = local_COG[1]-CrdAll->data[10];
+		temp_r_ef[2] = local_COG[2]-CrdAll->data[11];
+		Cross2Vd(&ZAxisAll->data[9],temp_r_ef,temp_cross);
+		result[0+3] = temp_cross[0]*temp_scale;
+		result[n+3] = temp_cross[1]*temp_scale;
+		result[2*n+3] = temp_cross[2]*temp_scale;
+
+		// axis 3 LL hip pitch
+		temp_scale += mass_com[0]/SumMass;
+		temp_mass_sum_next = temp_mass_sum + mass_com[0];
+		local_COG[0] = (local_COG[0]*temp_mass_sum + pv_stack[0]*mass_com[0])/temp_mass_sum_next;
+		local_COG[1] = (local_COG[1]*temp_mass_sum + pv_stack[1]*mass_com[0])/temp_mass_sum_next;
+		local_COG[2] = (local_COG[2]*temp_mass_sum + pv_stack[2]*mass_com[0])/temp_mass_sum_next;
+		temp_mass_sum = temp_mass_sum_next;
+		
+		temp_r_ef[0] = local_COG[0]-CrdAll->data[6];
+		temp_r_ef[1] = local_COG[1]-CrdAll->data[7];
+		temp_r_ef[2] = local_COG[2]-CrdAll->data[8];
+		Cross2Vd(&ZAxisAll->data[6],temp_r_ef,temp_cross);
+		result[0+2] = temp_cross[0]*temp_scale;
+		result[n+2] = temp_cross[1]*temp_scale;
+		result[2*n+2] = temp_cross[2]*temp_scale;
+
+		// axis 2 LL hip roll
+		Cross2Vd(&ZAxisAll->data[3],temp_r_ef,temp_cross);
+		result[0+1] = temp_cross[0]*temp_scale;
+		result[n+1] = temp_cross[1]*temp_scale;
+		result[2*n+1] = temp_cross[2]*temp_scale;
+
+		// axis 1 LL hip yaw
+		Cross2Vd(&ZAxisAll->data[0],temp_r_ef,temp_cross);
+		result[0+0] = temp_cross[0]*temp_scale;
+		result[n+0] = temp_cross[1]*temp_scale;
+		result[2*n+0] = temp_cross[2]*temp_scale;
+		}
+
+		else if(SubIndex==2)//right leg
+		{
+			// axis 12 RL ankle roll
+		temp_r_ef[0] = pv_stack[15]-CrdAll->data[54];
+		temp_r_ef[1] = pv_stack[16]-CrdAll->data[55];
+		temp_r_ef[2] = pv_stack[17]-CrdAll->data[56];
+
+		temp_scale = mass_com[5]/SumMass;
+		Cross2Vd(&ZAxisAll->data[54],temp_r_ef,temp_cross);
+
+		result[0+5] = temp_cross[0]*temp_scale;
+		result[n+5] = temp_cross[1]*temp_scale;
+		result[2*n+5] = temp_cross[2]*temp_scale;
+
+
+		// axis 11 RL ankle pitch
+		Cross2Vd(&ZAxisAll->data[51],temp_r_ef,temp_cross);
+
+		result[0+4] = temp_cross[0]*temp_scale;
+		result[n+4] = temp_cross[1]*temp_scale;
+		result[2*n+4] = temp_cross[2]*temp_scale;
+
+		// axis 10 RL knee pitch
+		temp_scale += mass_com[4]/SumMass;
+		temp_mass_sum = mass_com[4] + mass_com[5];
+		local_COG[0] = (pv_stack[12]*mass_com[4]+pv_stack[15]*mass_com[5])/temp_mass_sum;
+		local_COG[1] = (pv_stack[13]*mass_com[4]+pv_stack[16]*mass_com[5])/temp_mass_sum;
+		local_COG[2] = (pv_stack[14]*mass_com[4]+pv_stack[17]*mass_com[5])/temp_mass_sum;
+
+		temp_r_ef[0] = local_COG[0]-CrdAll->data[48];
+		temp_r_ef[1] = local_COG[1]-CrdAll->data[49];
+		temp_r_ef[2] = local_COG[2]-CrdAll->data[50];
+		Cross2Vd(&ZAxisAll->data[48],temp_r_ef,temp_cross);
+
+		result[0+3] = temp_cross[0]*temp_scale;
+		result[n+3] = temp_cross[1]*temp_scale;
+		result[2*n+3] = temp_cross[2]*temp_scale;
+
+
+		// axis 9 RL hip pitch
+		temp_scale += mass_com[3]/SumMass;
+		temp_mass_sum_next = temp_mass_sum + mass_com[3];
+		local_COG[0] = (local_COG[0]*temp_mass_sum + pv_stack[9]*mass_com[3])/temp_mass_sum_next;
+		local_COG[1] = (local_COG[1]*temp_mass_sum + pv_stack[10]*mass_com[3])/temp_mass_sum_next;
+		local_COG[2] = (local_COG[2]*temp_mass_sum + pv_stack[11]*mass_com[3])/temp_mass_sum_next;
+		temp_mass_sum = temp_mass_sum_next;
+		
+		temp_r_ef[0] = local_COG[0]-CrdAll->data[45];
+		temp_r_ef[1] = local_COG[1]-CrdAll->data[46];
+		temp_r_ef[2] = local_COG[2]-CrdAll->data[47];
+		Cross2Vd(&ZAxisAll->data[45],temp_r_ef,temp_cross);
+		
+		result[0+2] = temp_cross[0]*temp_scale;
+		result[n+2] = temp_cross[1]*temp_scale;
+		result[2*n+2] = temp_cross[2]*temp_scale;
+
+		// axis 8 RL hip roll
+		Cross2Vd(&ZAxisAll->data[42],temp_r_ef,temp_cross);
+		
+		result[0+1] = temp_cross[0]*temp_scale;
+		result[n+1] = temp_cross[1]*temp_scale;
+		result[2*n+1] = temp_cross[2]*temp_scale;
+		// axis 7 RL hip yaw
+		Cross2Vd(&ZAxisAll->data[39],temp_r_ef,temp_cross);
+		result[0+0] = temp_cross[0]*temp_scale;
+		result[n+0] = temp_cross[1]*temp_scale;
+		result[2*n+0] = temp_cross[2]*temp_scale;
+		}
+
+}
 void Kine::FloatJacobian(void)
 {
 	/******************************************************************
@@ -1734,13 +1977,10 @@ void Kine::FloatJacobian(void)
 	// when selIK = 0,   dx = [sw_x sw_y sw_z sw_tx sw_ty sw_tz fix_tx fix_ty fix_tz COGx COGy COGz ]
 	// when selIK = 1,2, dx = [sw_x sw_y sw_z sw_tx sw_ty sw_tz fix_tx fix_ty fix_tz COGx COGy COGz ]
 	// 被排成相同的!!
-	// when selIK = 0,   dx = [sw_x sw_y sw_z sw_tx sw_ty sw_tz fix_tx fix_ty fix_tz LA RA COGx COGy COGz ]
-	// when selIK = 1,2, dx = [sw_x sw_y sw_z sw_tx sw_ty sw_tz fix_tx fix_ty fix_tz LA RA COGx COGy COGz ]
 
-	//Jf 1,2,3 row   [J_floatBase_LL   Ja_LL        zeros(6,6)]
-	 //J_floatBase_LL = [ eye(3) -cross2mat(Pb2LL) ;zeros(3,3)   eye(3) ];
-	double float_ja_LL[36];	double float_ja_RL[36]; double float_ja_LA[36]; double float_ja_RA[36];
-
+	double float_ja_LL[36];	double float_ja_RL[36]; //double float_ja_LA[36]; double float_ja_RA[36];
+	double Ja_LL[36]; double Ja_RL[36];
+	double float_ja_COG[18]; double Ja_LL_COG[18]; double Ja_RL_COG[18];
 	double EndEffLL[3]; double EndEffRL[3]; double EndEffLA[3]; double EndEffRA[3];
 
 	EndEffLL[0] = CrdAll->data[12];
@@ -1751,862 +1991,71 @@ void Kine::FloatJacobian(void)
 	EndEffRL[1] = CrdAll->data[52];
 	EndEffRL[2] = CrdAll->data[53];
 
-	EndEffLA[0] = CrdAll->data[102];
-	EndEffLA[1] = CrdAll->data[103];
-	EndEffLA[2] = CrdAll->data[104];
+	//EndEffLA[0] = CrdAll->data[102];
+	//EndEffLA[1] = CrdAll->data[103];
+	//EndEffLA[2] = CrdAll->data[104];
 
-	EndEffRA[0] = CrdAll->data[132];
-	EndEffRA[1] = CrdAll->data[133];
-	EndEffRA[2] = CrdAll->data[134];
+	//EndEffRA[0] = CrdAll->data[132];
+	//EndEffRA[1] = CrdAll->data[133];
+	//EndEffRA[2] = CrdAll->data[134];
 
 	calc_float_Jacobian(EndEffLL,float_ja_LL);
 	calc_float_Jacobian(EndEffRL,float_ja_RL);
 	//calc_float_Jacobian(EndEffLA,float_ja_LA);
 	//calc_float_Jacobian(EndEffRA,float_ja_RA);
+	
+	calc_sub_Jacobian(1, Ja_LL);
+	calc_sub_Jacobian(2, Ja_RL);
+
+	calc_float_cogJacobian(float_ja_COG);
+
+	calc_sub_cogJacobian(1, Ja_LL_COG);
+	calc_sub_cogJacobian(2, Ja_RL_COG);
+
+	double I6[36]
+	double O6[36]
+	Mat_I_nxn(I6,6);
+	Mat_O_mxn(O6,6,6);
+
+	double I3[9];
+	double O3[9];
+	Mat_I_nxn(I3,3);
+	Mat_O_mxn(O3,3,3);
+
+	double O3_12[36];
+	Mat_O_mxn(O3_12,3,12);
+
+	double tmp1[72];
+	double tmp2[108];
+	Mat_A_addcol_B(float_ja_LL,6,6,Ja_LL,6,6,tmp1);
+	Mat_A_addcol_B(tmp1,6,12,O6,6,6,tmp2);
+
+	double tmp3[72];
+	double tmp4[108];
+	Mat_A_addcol_B(float_ja_RL,6,6,O6,6,6,tmp3);
+	Mat_A_addcol_B(tmp3,6,12,Ja_RL,6,6,tmp4);
+
+	double tmp5[36];
+	double tmp6[54];
+	Mat_A_addcol_B(float_ja_COG,3,6,Ja_LL_COG,3,6,tmp5);
+	Mat_A_addcol_B(tmp5,3,12,Ja_RL_COG,3,6,tmp6);
+
+	double tmp7[18];
+	double tmp8[54];
+	Mat_A_addcol_B(O3,3,3,I3,3,3,tmp7);
+	Mat_A_addcol_B(tmp7,3,6,O3_12,3,12,tmp8);
+
+	double tmp9[216];
+	double tmp10[108];
+	
+	Mat_A_addrow_B(tmp2,6,18,tmp4,6,18,tmp9);
+	Mat_A_addrow_B(tmp6,3,18,tmp8,3,18,tmp10);
+
+	Mat_A_addrow_B(tmp9,12,18,tmp10,6,18,Jf);
+
+	//if (selIK == LeftSupport){}		
+	//else if (selIK == 1 || selIK == 2) // support leg = right	{}
 
-
-	if (selIK == LeftSupport)
-	{
-		// 第 4 5 6 row
-		ind_x = JaNCol*3; //JaNCol = 24 so ignore the first 3 rows
-		ind_y = ind_x + JaNCol;
-		ind_z = ind_y + JaNCol; 
-		ind_source = 0;
-
-		// swing theta x y z, 3 rows, 12 cols
-		// 填寫角速度 Jacobian  fixed leg to swing leg
-		for (int i = 0 ; i < 6 ; i++) // 先跑6次 1~6 column  4~6 row(1)
-		{
-			Ja->data[ind_x] = -ZAxisAll->data[ind_source];
-			Ja->data[ind_y] = -ZAxisAll->data[ind_source+1];
-			Ja->data[ind_z] = -ZAxisAll->data[ind_source+2];
-
-			ind_source += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 填寫角速度 Jacobian  swing leg to swing leg
-		ind_source = 39;
-		for (int i = 0 ; i < 6 ; i++) // 再跑6次 7~12 column 4~6 row(2)
-		{
-			Ja->data[ind_x] = ZAxisAll->data[ind_source];
-			Ja->data[ind_y] = ZAxisAll->data[ind_source+1];
-			Ja->data[ind_z] = ZAxisAll->data[ind_source+2];
-			ind_source += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 填寫角速度 Jacobian  left arm to swing leg,right arm to swing leg
-		for(int i = 0; i<12 ; i++)// 跑12次 13~24 column 4~6 row(3)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 第 7 8 9 row
-		ind_x = JaNCol*6;
-		ind_y = ind_x + JaNCol;
-		ind_z = ind_y + JaNCol; 
-
-		// fixed theta x y z, 3 rows, 12 cols
-		// 填寫角速度 Jacobian  fixed leg to fixed leg
-		ind_source = 0;
-		for (int i = 0 ; i < 6 ; i++)//1~6 column 7~9 row(4)
-		{
-			Ja->data[ind_x] = ZAxisAll->data[ind_source];
-			Ja->data[ind_y] = ZAxisAll->data[ind_source+1];
-			Ja->data[ind_z] = ZAxisAll->data[ind_source+2];
-			ind_source += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 填寫角速度 Jacobian  swing leg to fixed leg,left arm to fixed leg,right arm to fixed leg(5)
-		for (int i = 0 ; i < 18 ; i++)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 填寫方向速度 Jacobian 所有軸，對於swing腳的endeffector
-		// 居然是swing腳踝!!!!!! 不是腳底投影點!!!!!!!
-		ind_source = 0;
-		ind_dest = 0;
-		EndEff[0] = CrdAll->data[51];
-		EndEff[1] = CrdAll->data[52];
-		EndEff[2] = CrdAll->data[53];
-
-		for (int i = 0 ; i <6 ; i++)//fixed腳每一軸到swing腳endefector的距離
-		{
-			EndEffDiff[ind_dest] =  CrdAll->data[ind_source] - EndEff[0];
-			EndEffDiff[ind_dest+1] = CrdAll->data[ind_source+1] - EndEff[1];
-			EndEffDiff[ind_dest+2] = CrdAll->data[ind_source+2] - EndEff[2];
-			ind_source += 3;
-			ind_dest += 3;
-		}
-
-		ind_source = 39;
-		//int_dest 繼續加算
-		for (int i = 6 ; i <12 ; i++)//swing腳每一軸到swing腳endefector的距離
-		{
-			EndEffDiff[ind_dest] = EndEff[0] - CrdAll->data[ind_source];
-			EndEffDiff[ind_dest+1] = EndEff[1] - CrdAll->data[ind_source+1];
-			EndEffDiff[ind_dest+2] = EndEff[2] - CrdAll->data[ind_source+2];
-			ind_source += 3;
-			ind_dest += 3;
-		}
-
-		ind_x = 0;
-		ind_y = JaNCol;
-		ind_z = ind_y + JaNCol; 
-		ind_source = 0;
-		// 填寫方向速度 Jacobian fixed leg to swing leg
-		for (int i = 0 ; i<6 ; i++)//1~6 column 1~3 row(6)
-		{
-			Cross2Vd(&ZAxisAll->data[ind_source],&EndEffDiff[ind_source],temp_cross);
-			Ja->data[ind_x] = temp_cross[0];
-			Ja->data[ind_y] = temp_cross[1];
-			Ja->data[ind_z] = temp_cross[2];
-			ind_source += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		ind_source = 39;
-		ind_dest = 18; // 借這個變數來用，ind_dest原本的意思是 要存到的地方之index
-		// 填寫方向速度 Jacobian swing leg to swing leg
-		for (int i = 6 ; i<12 ; i++)//7~12 column 1~3 row(7)
-		{
-			Cross2Vd(&ZAxisAll->data[ind_source],&EndEffDiff[ind_dest],temp_cross);
-			Ja->data[ind_x] = temp_cross[0];
-			Ja->data[ind_y] = temp_cross[1];
-			Ja->data[ind_z] = temp_cross[2];
-			ind_source += 3;
-			ind_dest += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 填寫方向速度 Jacobian  left arm to swing leg,right arm to swing leg
-		for (int i = 0 ; i < 12 ; i++)//13~24 column 1~3 row(8)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 第 13 14 15 rol
-		ind_x = JaNCol*12;
-		ind_y = ind_x + JaNCol;
-		ind_z = ind_y + JaNCol; 
-		ind_source = 0;
-
-		// 填寫角速度 Jacobian  fixed leg to left arm
-		for (int i = 0 ; i < 6 ; i++) // 先跑6次 1~6 column  13~15 row(9)
-		{
-			Ja->data[ind_x] = -ZAxisAll->data[ind_source];
-			Ja->data[ind_y] = -ZAxisAll->data[ind_source+1];
-			Ja->data[ind_z] = -ZAxisAll->data[ind_source+2];
-			ind_source += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 填寫角速度 Jacobian  swing leg to left arm
-		for (int i = 0 ; i < 6 ; i++) // 先跑6次 7~12 column  13~15 row(10)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		ind_source = 87;
-		// 填寫角速度 Jacobian  left arm to left arm
-		for (int i = 0 ; i < 6 ; i++) // 先跑6次 13~18 column  13~15 row(11)
-		{
-			Ja->data[ind_x] = ZAxisAll->data[ind_source];
-			Ja->data[ind_y] = ZAxisAll->data[ind_source+1];
-			Ja->data[ind_z] = ZAxisAll->data[ind_source+2];
-			ind_source += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 填寫角速度 Jacobian  right arm to left arm
-		for (int i = 0 ; i < 6 ; i++) // 先跑6次 19~24 column  13~15 row(12)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 第 19 20 21 rol
-		ind_x = JaNCol*18;
-		ind_y = ind_x + JaNCol;
-		ind_z = ind_y + JaNCol; 
-		ind_source = 0;
-
-		// 填寫角速度 Jacobian  fixed leg to right arm
-		for (int i = 0 ; i < 6 ; i++) // 先跑6次 1~6 column  19~21 row(13)
-		{
-			Ja->data[ind_x] = -ZAxisAll->data[ind_source];
-			Ja->data[ind_y] = -ZAxisAll->data[ind_source+1];
-			Ja->data[ind_z] = -ZAxisAll->data[ind_source+2];
-			ind_source += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 填寫角速度 Jacobian  swing leg to right arm,left arm to right arm
-		for (int i = 0 ; i < 12 ; i++) // 7~18 column  19~21 row(14)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		ind_source = 117;
-		// 填寫角速度 Jacobian  right arm to right arm
-		for (int i = 0 ; i < 6 ; i++) // 先跑6次 19~24 column  19~21 row(15)
-		{
-			Ja->data[ind_x] = ZAxisAll->data[ind_source];
-			Ja->data[ind_y] = ZAxisAll->data[ind_source+1];
-			Ja->data[ind_z] = ZAxisAll->data[ind_source+2];
-			ind_source += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 填寫方向速度 Jacobian 所有軸，對於left arm的endeffector
-		ind_source = 0;
-		ind_dest = 0;
-		EndEff[0] = CrdAll->data[102];
-		EndEff[1] = CrdAll->data[103];
-		EndEff[2] = CrdAll->data[104];
-
-		for (int i = 0 ; i <6 ; i++)//fixed腳每一軸到left arm endeffector的距離
-		{
-			EndEffDiff[ind_dest] =  CrdAll->data[ind_source] - EndEff[0];
-			EndEffDiff[ind_dest+1] = CrdAll->data[ind_source+1] - EndEff[1];
-			EndEffDiff[ind_dest+2] = CrdAll->data[ind_source+2] - EndEff[2];
-			ind_source += 3;
-			ind_dest += 3;
-		}
-
-		ind_source = 87;
-		//int_dest 繼續加算
-		for (int i = 6 ; i <12 ; i++)//left arm每一軸到left arm endeffector的距離
-		{
-			EndEffDiff[ind_dest] = EndEff[0] - CrdAll->data[ind_source];
-			EndEffDiff[ind_dest+1] = EndEff[1] - CrdAll->data[ind_source+1];
-			EndEffDiff[ind_dest+2] = EndEff[2] - CrdAll->data[ind_source+2];
-			ind_source += 3;
-			ind_dest += 3;
-		}
-
-		//第10 11 12 row
-		ind_x = JaNCol*9;
-		ind_y = ind_x + JaNCol;
-		ind_z = ind_y + JaNCol; 
-		ind_source = 0;
-		// 填寫方向速度 Jacobian fixed leg to left arm
-		for (int i = 0 ; i<6 ; i++)//1~6 column 10~12 row(16)
-		{
-			Cross2Vd(&ZAxisAll->data[ind_source],&EndEffDiff[ind_source],temp_cross);
-			Ja->data[ind_x] = temp_cross[0];
-			Ja->data[ind_y] = temp_cross[1];
-			Ja->data[ind_z] = temp_cross[2];
-			ind_source += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 填寫方向速度 Jacobian  swing leg to left arm
-		for (int i = 0 ; i < 6 ; i++)//7~12 column 10~12 row(17)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		ind_source = 87;
-		ind_dest = 18; // 借這個變數來用，ind_dest原本的意思是 要存到的地方之index
-		// 填寫方向速度 Jacobian left arm to left arm
-		for (int i = 6 ; i<12 ; i++)//13~18 column 10~12 row(18)
-		{
-			Cross2Vd(&ZAxisAll->data[ind_source],&EndEffDiff[ind_dest],temp_cross);
-			Ja->data[ind_x] = temp_cross[0];
-			Ja->data[ind_y] = temp_cross[1];
-			Ja->data[ind_z] = temp_cross[2];
-			ind_source += 3;
-			ind_dest += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 填寫方向速度 Jacobian  right arm to left arm
-		for (int i = 0 ; i < 6 ; i++)//19~24 column 10~12 row(19)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 填寫方向速度 Jacobian 所有軸，對於right arm的endeffector
-		ind_source = 0;
-		ind_dest = 0;
-		EndEff[0] = CrdAll->data[132];
-		EndEff[1] = CrdAll->data[133];
-		EndEff[2] = CrdAll->data[134];
-
-		for (int i = 0 ; i <6 ; i++)//fixed腳每一軸到right arm endeffector的距離
-		{
-			EndEffDiff[ind_dest] =  CrdAll->data[ind_source] - EndEff[0];
-			EndEffDiff[ind_dest+1] = CrdAll->data[ind_source+1] - EndEff[1];
-			EndEffDiff[ind_dest+2] = CrdAll->data[ind_source+2] - EndEff[2];
-			ind_source += 3;
-			ind_dest += 3;
-		}
-
-		ind_source = 117;
-		//int_dest 繼續加算
-		for (int i = 6 ; i <12 ; i++)//right arm每一軸到right arm endeffector的距離
-		{
-			EndEffDiff[ind_dest] = EndEff[0] - CrdAll->data[ind_source];
-			EndEffDiff[ind_dest+1] = EndEff[1] - CrdAll->data[ind_source+1];
-			EndEffDiff[ind_dest+2] = EndEff[2] - CrdAll->data[ind_source+2];
-			ind_source += 3;
-			ind_dest += 3;
-		}
-
-		//第16 17 18 row
-		ind_x = JaNCol*15;
-		ind_y = ind_x + JaNCol;
-		ind_z = ind_y + JaNCol; 
-		ind_source = 0;
-		// 填寫方向速度 Jacobian fixed leg to right arm
-		for (int i = 0 ; i<6 ; i++)//1~6 column 16~18 row(20)
-		{
-			Cross2Vd(&ZAxisAll->data[ind_source],&EndEffDiff[ind_source],temp_cross);
-			Ja->data[ind_x] = temp_cross[0];
-			Ja->data[ind_y] = temp_cross[1];
-			Ja->data[ind_z] = temp_cross[2];
-			ind_source += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-		// 填寫方向速度 Jacobian  swing leg to right arm,left arm to right arm
-		for (int i = 0 ; i < 12 ; i++)//7~18 column 16~18 row(21)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		ind_source = 117;
-		ind_dest = 18; // 借這個變數來用，ind_dest原本的意思是 要存到的地方之index
-		// 填寫方向速度 Jacobian right arm to right arm
-		for (int i = 6 ; i<12 ; i++)//19~24 column 16~18 row(22)
-		{
-			Cross2Vd(&ZAxisAll->data[ind_source],&EndEffDiff[ind_dest],temp_cross);
-			Ja->data[ind_x] = temp_cross[0];
-			Ja->data[ind_y] = temp_cross[1];
-			Ja->data[ind_z] = temp_cross[2];
-			ind_source += 3;
-			ind_dest += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-	}
-	else if (selIK == 1 || selIK == 2) // support leg = right
-	{	
-		//row 4 5 6
-		ind_x = JaNCol*3;
-		ind_y = ind_x + JaNCol;
-		ind_z = ind_y + JaNCol; 
-		ind_source = 0;
-
-		// swing theta x y z, 3 rows, 12 cols
-		// 填寫角速度 Jacobian  swing leg to swing leg     swing = left
-		for (int i = 0 ; i < 6 ; i++) // 先跑6次  column 1~6 row 4~6(1)
-		{
-			Ja->data[ind_x] = ZAxisAll->data[ind_source];
-			Ja->data[ind_y] = ZAxisAll->data[ind_source+1];
-			Ja->data[ind_z] = ZAxisAll->data[ind_source+2];
-			
-			ind_source += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 填寫角速度 Jacobian  fixed leg to swing leg     swing = left
-		ind_source = 39;
-		for (int i = 0 ; i < 6 ; i++) // 再跑6次 column 7~12 row 4~6(2)
-		{
-			Ja->data[ind_x] = -ZAxisAll->data[ind_source];
-			Ja->data[ind_y] = -ZAxisAll->data[ind_source+1];
-			Ja->data[ind_z] = -ZAxisAll->data[ind_source+2];
-
-			ind_source += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 填寫角速度 Jacobian  left arm to swing leg, right arm to swing leg
-		for (int i = 0 ; i < 12 ; i++)//column 13~24 row 4~6(3)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-
-		//row 7 8 9
-		ind_x = JaNCol*6;
-		ind_y = ind_x + JaNCol;
-		ind_z = ind_y + JaNCol; 
-
-		// fixed theta x y z, 3 rows, 12 cols
-		// 填寫角速度 Jacobian  swing leg to fixed leg (all zeros)
-		//ind_source = 0;
-		for (int i = 0 ; i < 6 ; i++)//column 1~6 row 7~9(4)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 填寫角速度 Jacobian  fix leg to fixed leg
-		ind_source = 39;
-		for (int i = 0 ; i < 6 ; i++)//column 7~12 row 7~9(5)
-		{
-			Ja->data[ind_x] = ZAxisAll->data[ind_source];
-			Ja->data[ind_y] = ZAxisAll->data[ind_source+1];
-			Ja->data[ind_z] = ZAxisAll->data[ind_source+2];
-
-			ind_source += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-		// 填寫角速度 Jacobian  left arm to fixed leg ,right arm to fixed leg(all zeros)
-		//ind_source = 0;
-		for (int i = 0 ; i < 12 ; i++)//column 13~24 row 7~9(6)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-
-		// 填寫方向速度 Jacobian 所有軸，對於endeffector
-		// 居然是swing腳踝!!!!!! 不是腳底投影點!!!!!!!
-		EndEff[0] = CrdAll->data[12];
-		EndEff[1] = CrdAll->data[13];
-		EndEff[2] = CrdAll->data[14];
-
-		ind_source = 0;
-		ind_dest = 0;
-		for (int i = 0 ; i <6 ; i++)//swing腳每一軸到swing腳endeffector的距離
-		{
-			EndEffDiff[ind_dest] =  EndEff[0] - CrdAll->data[ind_source];
-			EndEffDiff[ind_dest+1] = EndEff[1] - CrdAll->data[ind_source+1];
-			EndEffDiff[ind_dest+2] = EndEff[2] - CrdAll->data[ind_source+2];
-			ind_source += 3;
-			ind_dest += 3;
-		}
-
-		ind_source = 39;
-		//ind_dest 繼續加算
-		for (int i = 6 ; i <12 ; i++)//fixed腳每一軸到swing腳endeffector的距離
-		{
-			EndEffDiff[ind_dest] =  CrdAll->data[ind_source] - EndEff[0];
-			EndEffDiff[ind_dest+1] = CrdAll->data[ind_source+1] - EndEff[1];
-			EndEffDiff[ind_dest+2] = CrdAll->data[ind_source+2] - EndEff[2];
-			ind_source += 3;
-			ind_dest += 3;
-		}
-
-		ind_x = 0;
-		ind_y = JaNCol;
-		ind_z = ind_y + JaNCol; 
-		ind_source = 0;
-		// 填寫方向速度 Jacobian swing leg to swing leg
-		for (int i = 0 ; i<6 ; i++)//column 1~6 row 1~3(7)
-		{
-			Cross2Vd(&ZAxisAll->data[ind_source],&EndEffDiff[ind_source],temp_cross);
-			Ja->data[ind_x] = temp_cross[0];
-			Ja->data[ind_y] = temp_cross[1];
-			Ja->data[ind_z] = temp_cross[2];
-			ind_source += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		ind_source = 39;
-		ind_dest = 18; // 借這個變數來用，ind_dest原本的意思是 要存到的地方之index
-		// 填寫方向速度 Jacobian fixed leg to swing leg
-		for (int i = 6 ; i<12 ; i++)//column 7~12 row 1~3(8)
-		{
-			Cross2Vd(&ZAxisAll->data[ind_source],&EndEffDiff[ind_dest],temp_cross);
-			Ja->data[ind_x] = temp_cross[0];
-			Ja->data[ind_y] = temp_cross[1];
-			Ja->data[ind_z] = temp_cross[2];
-			ind_source += 3;
-			ind_dest += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-		// 填寫方向速度 Jacobian  left arm to swing leg ,right arm to swing leg(all zeros)
-		//ind_source = 0;
-		for (int i = 0 ; i < 12 ; i++)//column 13~24 row 1~3(9)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 第 13 14 15 rol
-		ind_x = JaNCol*12;
-		ind_y = ind_x + JaNCol;
-		ind_z = ind_y + JaNCol;
-
-		// 填寫角速度 Jacobian  swing leg to left arm
-		for (int i = 0 ; i < 6 ; i++) // 先跑6次 1~6 column  13~15 row(10)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-		ind_source = 39;
-		// 填寫角速度 Jacobian  fixed leg to left arm
-		for (int i = 0 ; i < 6 ; i++) // 先跑6次 7~12 column  13~15 row(11)
-		{
-			Ja->data[ind_x] = -ZAxisAll->data[ind_source];
-			Ja->data[ind_y] = -ZAxisAll->data[ind_source+1];
-			Ja->data[ind_z] = -ZAxisAll->data[ind_source+2];
-			ind_source += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-		ind_source = 87;
-		// 填寫角速度 Jacobian  left arm to left arm
-		for (int i = 0 ; i < 6 ; i++) // 先跑6次 13~18 column  13~15 row(12)
-		{
-			Ja->data[ind_x] = ZAxisAll->data[ind_source];
-			Ja->data[ind_y] = ZAxisAll->data[ind_source+1];
-			Ja->data[ind_z] = ZAxisAll->data[ind_source+2];
-			ind_source += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-		// 填寫角速度 Jacobian  right arm to left arm
-		for (int i = 0 ; i < 6 ; i++) // 先跑6次 19~24 column  13~15 row(13)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 第 19 20 21 rol
-		ind_x = JaNCol*18;
-		ind_y = ind_x + JaNCol;
-		ind_z = ind_y + JaNCol; 
-
-
-		// 填寫角速度 Jacobian  swing leg to right arm
-		for (int i = 0 ; i < 6 ; i++) // 1~6 column  19~21 row(14)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		ind_source = 39;
-		// 填寫角速度 Jacobian  fixed leg to right arm
-		for (int i = 0 ; i < 6 ; i++) // 先跑6次 7~12 column  19~21 row(15)
-		{
-			Ja->data[ind_x] = -ZAxisAll->data[ind_source];
-			Ja->data[ind_y] = -ZAxisAll->data[ind_source+1];
-			Ja->data[ind_z] = -ZAxisAll->data[ind_source+2];
-			ind_source += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 填寫角速度 Jacobian  left arm to right arm
-		for (int i = 0 ; i < 6 ; i++) // 13~18 column  19~21 row(16)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		ind_source = 117;
-		// 填寫角速度 Jacobian  right arm to right arm
-		for (int i = 0 ; i < 6 ; i++) // 先跑6次 19~24 column  19~21 row(17)
-		{
-			Ja->data[ind_x] = ZAxisAll->data[ind_source];
-			Ja->data[ind_y] = ZAxisAll->data[ind_source+1];
-			Ja->data[ind_z] = ZAxisAll->data[ind_source+2];
-			ind_source += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 填寫方向速度 Jacobian 所有軸，對於left arm的endeffector
-		ind_source = 39;
-		ind_dest = 0;
-		EndEff[0] = CrdAll->data[102];
-		EndEff[1] = CrdAll->data[103];
-		EndEff[2] = CrdAll->data[104] ;
-
-		for (int i = 0 ; i <6 ; i++)//fixed腳每一軸到left arm endeffector的距離
-		{
-			EndEffDiff[ind_dest] =  CrdAll->data[ind_source] - EndEff[0];
-			EndEffDiff[ind_dest+1] = CrdAll->data[ind_source+1] - EndEff[1];
-			EndEffDiff[ind_dest+2] = CrdAll->data[ind_source+2] - EndEff[2];
-			ind_source += 3;
-			ind_dest += 3;
-		}
-
-		ind_source = 87;
-		//int_dest 繼續加算
-		for (int i = 6 ; i <12 ; i++)//left arm每一軸到left arm endeffector的距離
-		{
-			EndEffDiff[ind_dest] = EndEff[0] - CrdAll->data[ind_source];
-			EndEffDiff[ind_dest+1] = EndEff[1] - CrdAll->data[ind_source+1];
-			EndEffDiff[ind_dest+2] = EndEff[2] - CrdAll->data[ind_source+2];
-			ind_source += 3;
-			ind_dest += 3;
-		}
-
-		//第10 11 12 row
-		ind_x = JaNCol*9;
-		ind_y = ind_x + JaNCol;
-		ind_z = ind_y + JaNCol; 
-		
-
-		// 填寫方向速度 Jacobian  swing leg to left arm
-		for (int i = 0 ; i < 6 ; i++)//1~6 column 10~12 row(18)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		ind_source = 39;
-		ind_dest = 0; // 借這個變數來用，ind_dest原本的意思是 要存到的地方之index
-		// 填寫方向速度 Jacobian fixed leg to left arm
-		for (int i = 0 ; i<6 ; i++)//7~12 column 10~12 row(19)
-		{
-			Cross2Vd(&ZAxisAll->data[ind_source],&EndEffDiff[ind_dest],temp_cross);
-			Ja->data[ind_x] = temp_cross[0];
-			Ja->data[ind_y] = temp_cross[1];
-			Ja->data[ind_z] = temp_cross[2];
-			ind_source += 3;
-			ind_dest +=3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		ind_source = 87;
-		ind_dest = 18; // 借這個變數來用，ind_dest原本的意思是 要存到的地方之index
-		// 填寫方向速度 Jacobian left arm to left arm
-		for (int i = 6 ; i<12 ; i++)//13~18 column 10~12 row(20)
-		{
-			Cross2Vd(&ZAxisAll->data[ind_source],&EndEffDiff[ind_dest],temp_cross);
-			Ja->data[ind_x] = temp_cross[0];
-			Ja->data[ind_y] = temp_cross[1];
-			Ja->data[ind_z] = temp_cross[2];
-			ind_source += 3;
-			ind_dest += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 填寫方向速度 Jacobian  right arm to left arm
-		for (int i = 0 ; i < 6 ; i++)//19~24 column 10~12 row(21)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-
-		// 填寫方向速度 Jacobian 所有軸，對於right arm的endeffector
-		ind_source = 39;
-		ind_dest = 0;
-		EndEff[0] = CrdAll->data[132];
-		EndEff[1] = CrdAll->data[133];
-		EndEff[2] = CrdAll->data[134];
-
-		for (int i = 0 ; i <6 ; i++)//fixed腳每一軸到right arm endeffector的距離
-		{
-			EndEffDiff[ind_dest] =  CrdAll->data[ind_source] - EndEff[0];
-			EndEffDiff[ind_dest+1] = CrdAll->data[ind_source+1] - EndEff[1];
-			EndEffDiff[ind_dest+2] = CrdAll->data[ind_source+2] - EndEff[2];
-			ind_source += 3;
-			ind_dest += 3;
-		}
-
-		ind_source = 117;
-		//int_dest 繼續加算
-		for (int i = 6 ; i <12 ; i++)//right arm每一軸到right arm endeffector的距離
-		{
-			EndEffDiff[ind_dest] = EndEff[0] - CrdAll->data[ind_source];
-			EndEffDiff[ind_dest+1] = EndEff[1] - CrdAll->data[ind_source+1];
-			EndEffDiff[ind_dest+2] = EndEff[2] - CrdAll->data[ind_source+2];
-			ind_source += 3;
-			ind_dest += 3;
-		}
-
-		//第16 17 18 row
-		ind_x = JaNCol*15;
-		ind_y = ind_x + JaNCol;
-		ind_z = ind_y + JaNCol; 
-
-		// 填寫方向速度 Jacobian  swing leg to right arm
-		for (int i = 0 ; i < 6 ; i++)//1~6 column 16~18 row(22)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		ind_source = 39;
-		ind_dest = 0; // 借這個變數來用，ind_dest原本的意思是 要存到的地方之index
-		// 填寫方向速度 Jacobian fixed leg to right arm
-		for (int i = 0 ; i<6 ; i++)//6~12 column 16~18 row(23)
-		{
-			Cross2Vd(&ZAxisAll->data[ind_source],&EndEffDiff[ind_dest],temp_cross);
-			Ja->data[ind_x] = temp_cross[0];
-			Ja->data[ind_y] = temp_cross[1];
-			Ja->data[ind_z] = temp_cross[2];
-			ind_source += 3;
-			ind_dest += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		// 填寫方向速度 Jacobian  left arm to right arm
-		for (int i = 0 ; i < 6 ; i++)//13~18 column 16~18 row(24)
-		{
-			Ja->data[ind_x] = 0;
-			Ja->data[ind_y] = 0;
-			Ja->data[ind_z] = 0;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		}
-
-		ind_source = 117;
-		ind_dest = 18; // 借這個變數來用，ind_dest原本的意思是 要存到的地方之index
-		// 填寫方向速度 Jacobian right arm to right arm
-		for (int i = 6 ; i<12 ; i++)//19~24 column 16~18 row(25)
-		{
-			Cross2Vd(&ZAxisAll->data[ind_source],&EndEffDiff[ind_dest],temp_cross);
-			Ja->data[ind_x] = temp_cross[0];
-			Ja->data[ind_y] = temp_cross[1];
-			Ja->data[ind_z] = temp_cross[2];
-			ind_source += 3;
-			ind_dest += 3;
-			ind_x += 1;
-			ind_y += 1;
-			ind_z += 1;
-		} 
-	}
-
-	// 計算機器人COG Jacobian
-	GetCOGJacobian();
 }
 
 void Kine::ComputeJacobians(void)
@@ -2637,7 +2086,7 @@ void Kine::ComputeJacobians(void)
 		ind_source = 0;
 
 		// swing theta x y z, 3 rows, 12 cols
-		// 填寫角速度 Jacobian  fixed leg to swing leg
+		// 填寫角速度 Jacobian  fixed leg(left) to swing(right) leg
 		for (int i = 0 ; i < 6 ; i++) // 先跑6次 1~6 column  4~6 row(1)
 		{
 			Ja->data[ind_x] = -ZAxisAll->data[ind_source];
@@ -2712,7 +2161,7 @@ void Kine::ComputeJacobians(void)
 		EndEff[1] = CrdAll->data[52];
 		EndEff[2] = CrdAll->data[53];
 
-		for (int i = 0 ; i <6 ; i++)//fixed腳每一軸到swing腳endefector的距離
+		for (int i = 0 ; i <6 ; i++)//fixed(left)腳每一軸到swing(right)腳endefector的距離
 		{
 			EndEffDiff[ind_dest] =  CrdAll->data[ind_source] - EndEff[0];
 			EndEffDiff[ind_dest+1] = CrdAll->data[ind_source+1] - EndEff[1];
@@ -2723,7 +2172,7 @@ void Kine::ComputeJacobians(void)
 
 		ind_source = 39;
 		//int_dest 繼續加算
-		for (int i = 6 ; i <12 ; i++)//swing腳每一軸到swing腳endefector的距離
+		for (int i = 6 ; i <12 ; i++)//swing(right)腳每一軸到swing腳endefector的距離
 		{
 			EndEffDiff[ind_dest] = EndEff[0] - CrdAll->data[ind_source];
 			EndEffDiff[ind_dest+1] = EndEff[1] - CrdAll->data[ind_source+1];
@@ -4094,7 +3543,7 @@ void Kine::GetCOGJacobian(void)
 
 
 
-	}
+		}
 	else if (selIK == RightSupport || selIK == DoubleSupport) // right leg support and double support
 	{
 		// axis 6 LL ankle roll
