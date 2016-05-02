@@ -513,6 +513,7 @@ Kine::~Kine(void)
 	delete CrdAll;
 	delete ZAxisAll;
 	delete Ja;
+	delete Jf;
 
 	delete[] r_com;
 	delete[] mass_com;
@@ -2012,8 +2013,8 @@ void Kine::FloatJacobian(void)
 	calc_sub_cogJacobian(1, Ja_LL_COG);
 	calc_sub_cogJacobian(2, Ja_RL_COG);
 
-	double I6[36]
-	double O6[36]
+	double I6[36];
+	double O6[36];
 	Mat_I_nxn(I6,6);
 	Mat_O_mxn(O6,6,6);
 
@@ -2051,7 +2052,7 @@ void Kine::FloatJacobian(void)
 	Mat_A_addrow_B(tmp2,6,18,tmp4,6,18,tmp9);
 	Mat_A_addrow_B(tmp6,3,18,tmp8,3,18,tmp10);
 
-	Mat_A_addrow_B(tmp9,12,18,tmp10,6,18,Jf);
+	Mat_A_addrow_B(tmp9,12,18,tmp10,6,18,Jf->data);
 
 	//if (selIK == LeftSupport){}		
 	//else if (selIK == 1 || selIK == 2) // support leg = right	{}
@@ -5648,7 +5649,45 @@ void Kine::Gen7DegPolyMod(double y0, double y1, int Np, double* result)
 		result[i] = Poly[0]+Poly[3]*xn[3]+Poly[4]*xn[4]+Poly[5]*xn[5]+Poly[6]*xn[6]+Poly[7]*xn[7];
 	}
 }
-
+void Kine::Werr(double Rnow[9],double Rref[9],double werr[3])
+{
+	/*	
+		Rerr = Cnow.R' * Cref.R;
+		werr = Cnow.R * rot2omega(Rerr);
+		function w = rot2omega(R)
+			eps = 1.0e-6;
+			el = [R(3,2)-R(2,3);R(1,3)-R(3,1);R(2,1)-R(1,2)];
+			norm_el = norm(el);
+			if norm_el > eps
+				w = atan2(norm_el, trace(R)-1) / norm_el * el;
+			elseif R(1,1)>0 && R(2,2)>0 && R(3,3)>0
+				w = [0 0 0]';
+			else
+				w = pi/2*[ R(1,1)+1, R(2,2)+1, R(3,3)+1];
+			end
+	*/
+	double Rerr[9]; double el[3]; double norm_el; 
+	MatMulAtB(Rnow ,3,3,Rref , 3,3, Rerr);
+	double eps=0.000001;
+	el[0]=Rerr[7]-Rerr[5];
+	el[1]=Rerr[2]-Rerr[6];
+	el[2]=Rerr[3]-Rerr[1];
+	norm_el = NormXYZD(el);
+	if(norm_el>eps){
+		werr[0]= atan2(norm_el,Rerr[0]+Rerr[4]+Rerr[7]-1)/norm_el *el[0]; 
+		werr[1]= atan2(norm_el,Rerr[0]+Rerr[4]+Rerr[7]-1)/norm_el *el[1]; 
+		werr[2]= atan2(norm_el,Rerr[0]+Rerr[4]+Rerr[7]-1)/norm_el *el[2]; 
+	}
+	else if(Rerr[0]>0&&Rerr[4]>0&&Rerr[8]>0){
+		werr[0]=0;werr[1]=0;werr[2]=0;
+	}
+	else{
+		werr[0] = PI/2* ( Rerr[0] + 1);
+		werr[1] = PI/2* ( Rerr[4] + 1);
+		werr[2] = PI/2* ( Rerr[8] + 1);
+	}
+	
+}
 void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixed,double* tLArm, double* tRArm,double* tRLArm, double* tRRArm,int IKMode, int* status)
 {
 	/******************************************************************
@@ -5687,16 +5726,24 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 
 	bool RotFlag=1;
 	
+
 	double TempMat[9];	// Slongz 20130122
 	double TempMat2[9]={1,0,0,0,1,0,0,0,1};	// slope
+	
+	//double tFix[3]={0,0,0};//target fixed position
+
 	while (1)
 	{
 		// distance error
 		if (selIK == LeftSupport)
 		{
-			SwingErr[0] = tSwing[0] - CrdAll->data[57];
-			SwingErr[1] = tSwing[1] - CrdAll->data[58];
-			SwingErr[2] = tSwing[2] - CrdAll->data[59];
+			RLErr[0] = tSwing[0] - CrdAll->data[57];
+			RLErr[1] = tSwing[1] - CrdAll->data[58];
+			RLErr[2] = tSwing[2] - CrdAll->data[59];
+
+			LLErr[0] = 0;//tFix[0] - CrdAll->data[18];
+			LLErr[1] = 0;//tFix[1] - CrdAll->data[19];
+			LLErr[2] = 0;//tFix[2] - CrdAll->data[20];
 		}
 		else if (selIK == RightSupport || selIK == DoubleSupport)
 		{
@@ -5717,9 +5764,13 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 			//SwingErr[1] = 0; 
 			//SwingErr[2] = 0;
 			//}
-			SwingErr[0] = tSwing[0] - CrdAll->data[18];
-			SwingErr[1] = tSwing[1] - CrdAll->data[19];
-			SwingErr[2] = tSwing[2] - CrdAll->data[20];
+			RLErr[0] = 0;//tFix[0] - CrdAll->data[57];
+			RLErr[1] = 0;//tFix[1] - CrdAll->data[58];
+			RLErr[2] = 0;//tFix[2] - CrdAll->data[59];
+
+			LLErr[0] = tSwing[0] - CrdAll->data[18];
+			LLErr[1] = tSwing[1] - CrdAll->data[19];
+			LLErr[2] = tSwing[2] - CrdAll->data[20];
 		}
 		//////Slongz 20130122
 		//
@@ -5839,59 +5890,45 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 		// angle error
 		GetLegsCoords(); // Also compute body coordinates
 
-		for (int i = 0 ; i < 9 ; i++)
-		{
-			if(check_slopeangle == 1)
-				TarRotMBody[i] =TempMat2[i];	// 斜坡身體角度
-			else if(gUpStair)
-				TarRotMBody[i]=	tRFixed[i];
-			else if( RunDynamics == 1)
-				TarRotMBody[i]=	tRFixed[i];
-			else
-				TarRotMBody[i]=	(tRSwing[i]+tRFixed[i])/2.0;
-		}
-		// normalize
-		temp_scale = sqrt(TarRotMBody[0]*TarRotMBody[0]+TarRotMBody[3]*TarRotMBody[3]+TarRotMBody[6]*TarRotMBody[6]);
-		TarRotMBody[0]/=temp_scale;
-		TarRotMBody[3]/=temp_scale;
-		TarRotMBody[6]/=temp_scale;
 
-		temp_scale = sqrt(TarRotMBody[1]*TarRotMBody[1]+TarRotMBody[4]*TarRotMBody[4]+TarRotMBody[7]*TarRotMBody[7]);
-		TarRotMBody[1]/=temp_scale;
-		TarRotMBody[4]/=temp_scale;
-		TarRotMBody[7]/=temp_scale;
 
-		temp_vec1[0] = TarRotMBody[0]; temp_vec1[1] = TarRotMBody[3]; temp_vec1[2] = TarRotMBody[6]; 
-		temp_vec2[0] = TarRotMBody[1]; temp_vec2[1] = TarRotMBody[4]; temp_vec2[2] = TarRotMBody[7]; 
-		Cross2Vd(temp_vec1, temp_vec2, temp_vec3);	// TarRotMBody新的Z軸 由XY外積而來
+		TarRotMBody[0]=1;TarRotMBody[1]=0;TarRotMBody[2]=0;
+		TarRotMBody[3]=0;TarRotMBody[4]=1;TarRotMBody[5]=0;
+		TarRotMBody[6]=0;TarRotMBody[7]=0;TarRotMBody[8]=1;
+		Werr(BodyRotM,TarRotMBody,DiffRotMatBody);
 
-		TarRotMBody[2] = temp_vec3[0];
-		TarRotMBody[5] = temp_vec3[1]; 
-		TarRotMBody[8] = temp_vec3[2]; 
-		temp_scale = sqrt(TarRotMBody[2]*TarRotMBody[2]+TarRotMBody[5]*TarRotMBody[5]+TarRotMBody[8]*TarRotMBody[8]);	// normalize
-		TarRotMBody[2]/=temp_scale;
-		TarRotMBody[5]/=temp_scale;
-		TarRotMBody[8]/=temp_scale;
+		//MatMulABt(TarRotMBody ,3,3,BodyRotM , 3,3, DiffRotMatBody);
 
-		temp_vec3[0] = TarRotMBody[2]; temp_vec3[1] = TarRotMBody[5]; temp_vec3[2] = TarRotMBody[8];
-		Cross2Vd(temp_vec3, temp_vec1, temp_vec2);
-		TarRotMBody[1] =temp_vec2[0];
-		TarRotMBody[4] =temp_vec2[1];
-		TarRotMBody[7] =temp_vec2[2];
+		//temp_vec1[0] = DiffRotMatBody[7];
+		//temp_vec1[1] = DiffRotMatBody[2];
+		//temp_vec1[2] = DiffRotMatBody[3];
+
 
 		if (selIK == 0)	// SUPPORT LEG
-			MatMulABt(tRSwing ,3,3,RLegRotM, 3,3, DiffRotMatSw);
+		{	
+			Werr(LLegRotM,tRFixed,DiffRotMatLL);
+			Werr(RLegRotM,tRSwing,DiffRotMatRL);
+			//MatMulABt(tRFixed ,3,3,LLegRotM , 3,3, DiffRotMatLL);
+			//MatMulABt(tRSwing ,3,3,RLegRotM, 3,3, DiffRotMatRL);
+		}
+
 		else
-			MatMulABt(tRSwing ,3,3,LLegRotM , 3,3, DiffRotMatSw);
+		{			
+			Werr(LLegRotM,tRSwing,DiffRotMatLL);
+			Werr(RLegRotM,tRFixed,DiffRotMatRL);
+			//MatMulABt(tRSwing ,3,3,LLegRotM , 3,3, DiffRotMatLL);	
+			//MatMulABt(tRFixed ,3,3,RLegRotM, 3,3, DiffRotMatRL);
+		}
 
-		MatMulABt(TarRotMBody ,3,3,BodyRotM , 3,3, DiffRotMatBody);
 
-		temp_vec1[0] = DiffRotMatBody[7];//*SwingFreeCoef[gIthIK%gStepSample];
-		temp_vec1[1] = DiffRotMatBody[2];
-		temp_vec1[2] = DiffRotMatBody[3];
-		temp_vec2[0] = DiffRotMatSw[7];
-		temp_vec2[1] = DiffRotMatSw[2];
-		temp_vec2[2] = DiffRotMatSw[3];
+		//MatMulABt(TarRotMBody ,3,3,BodyRotM , 3,3, DiffRotMatBody);
+
+		//temp_vec1[0] = DiffRotMatLL[7];//*SwingFreeCoef[gIthIK%gStepSample];
+		//temp_vec1[1] = DiffRotMatLL[2];
+		//temp_vec1[2] = DiffRotMatLL[3];
+		//temp_vec2[0] = DiffRotMatRL[7];
+		//temp_vec2[1] = DiffRotMatRL[2];
+		//temp_vec2[2] = DiffRotMatRL[3];
 	
 			//for(int i = 0;i<9;i++)
 			//	cout<<tRSwing[i]<<endl;
@@ -6030,9 +6067,12 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 			break;
 		}
 
-		ComputeJacobians();
+		//ComputeJacobians();
+		FloatJacobian();
 		cntIK += 1;
 
+
+		
 
 	// when selIK = 0,   dx = [sw_x sw_y sw_z sw_tx sw_ty sw_tz fix_tx fix_ty fix_tz COGx COGy COGz ]
 	// when selIK = 1,2, dx = [sw_x sw_y sw_z sw_tx sw_ty sw_tz fix_tx fix_ty fix_tz COGx COGy COGz ]
@@ -6071,18 +6111,25 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 		}
 		else if(IKMode == 1)	// 只解腳
 		{
-			dxLeg[0] = SwingErr[0];
-			dxLeg[1] = SwingErr[1];
-			dxLeg[2] = SwingErr[2];
-			dxLeg[3] = DiffRotMatSw[7];
-			dxLeg[4] = DiffRotMatSw[2];
-			dxLeg[5] = DiffRotMatSw[3];
-			dxLeg[6] = -DiffRotMatBody[7];
-			dxLeg[7] = -DiffRotMatBody[2];
-			dxLeg[8] = -DiffRotMatBody[3];
-			dxLeg[9] = COGErr[0];
-			dxLeg[10] = COGErr[1];
-			dxLeg[11] = COGErr[2];
+
+			dxLeg[0] = LLErr[0];
+			dxLeg[1] = LLErr[1]; //err_left.p, not OK when LL is support 
+			dxLeg[2] = LLErr[2];
+			dxLeg[3] = DiffRotMatLL[0];
+			dxLeg[4] = DiffRotMatLL[1];//OK, err_left.R
+			dxLeg[5] = DiffRotMatLL[2];
+			dxLeg[6] =   RLErr[0];// err_right.p, not OK when LL is support 
+			dxLeg[7] =   RLErr[1];
+			dxLeg[8] =   RLErr[2];
+			dxLeg[9] =	DiffRotMatRL[0];	// OK, err_right.R
+			dxLeg[10] = DiffRotMatRL[1];
+			dxLeg[11] = DiffRotMatRL[2];
+			dxLeg[12] =  COGErr[0];  //OK, err_cog
+			dxLeg[13] =  COGErr[1];
+			dxLeg[14] =  COGErr[2];
+			dxLeg[15] =  DiffRotMatBody[0];
+			dxLeg[16] =  DiffRotMatBody[1]; //OK, err_base
+			dxLeg[17] =  DiffRotMatBody[2];
 		}
 
 		//FindWLN();
@@ -6149,21 +6196,14 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 		}
 		else if(IKMode == 1)	// 只解腳
 		{
-			for(int i = 0;i<12;i++)
-			{
-				for(int j = 0;j<9;j++)
-				{
-					tempJLeg[i+j*12] = Ja->data[i+j*24];
-				}
-				for(int j = 0;j<3;j++)
-				{
-					tempJLeg[i + j*12 + 9*12] = Ja->data[i + j*24 + 21*24];
-				}
-			}
 
-			InvSqMat(tempJLeg,12);
-			MatMulAB(tempJLeg,12,12,dxLeg,12,1,dthLeg);
-			for (int i = 0 ; i < 12 ; i++)
+			for (int i = 0 ; i < Jf->MSize ; i++) // copy J
+			{
+				tempJ[i] = Jf->data[i];
+			}
+			InvSqMat(tempJ,Jf->MRow);
+			MatMulAB(tempJ,Jf->MRow,Jf->MRow,dxLeg,18,1,dthLeg);
+			for (int i = 6 ; i < 18 ; i++)
 			{
 				if (fabs(dthLeg[i]) > MaxJointAngleChange)
 				{
@@ -6177,8 +6217,8 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 
 			for (int i = 0 ; i < 6 ; i++)
 			{
-				FKLLeg->theta[i+1] += dthLeg[i];
-				FKRLeg->theta[i+1] += dthLeg[i+6];
+				FKLLeg->theta[i+1] += dthLeg[i+6];
+				FKRLeg->theta[i+1] += dthLeg[i+12];
 			}
 		}
 		//// compute J*inv(W)*J'

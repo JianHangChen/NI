@@ -94,6 +94,8 @@ public:
 	void Cross2Vd(double* v1, double* v2, double* v3); // cross
 	void Cross2Vf(float* v1, float* v2, float* v3); // cross
 	double NormXYZD(double* Vec); // normalize
+	void Werr(double Rnow[9],double Rref[9],double werr[3]); //calculate difference between Rref and Rnow 20160430
+
 
 	// Euler angle functions
 	void ComputeEulerAng(double* RotM, double* EulerAng);
@@ -389,6 +391,9 @@ public:
 	double COGErrLim;	// COG 解IK 誤差值
 	double AngleErrLim;	// 可接受Angle error
 	double SwingErr[3];	//  error of swing leg position in xyz 
+	double LLErr[3];//error of left leg position 20160430
+	double RLErr[3];//error of right leg position 20160430
+
 	double COGErr[3];	// error of COG position in xyz
 	//泓逸start111227
 	double LArmErr[3];	// in xyz
@@ -480,6 +485,8 @@ public:
 	double DiffRotMatSwPitch[9]; // difference between two rotation matrices (注意差距要小 才能線性化)
 	double DiffRotMatFxPitch[9]; // difference between two rotation matrices (注意差距要小 才能線性化)
 	double DiffRotMatBodyPitch[9]; // difference between two rotation matrices (注意差距要小 才能線性化)
+	double DiffRotMatRL[9]; //difference between Target Right Leg Rotation matrix and Real Right Leg Rotation matrix 20160430
+	double DiffRotMatLL[9];//difference between Target Left Leg Rotation matrix and Real Left Leg Rotation matrix 20160430
 	//20121214doratom//
 
 	//泓逸start120222

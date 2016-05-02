@@ -1353,7 +1353,8 @@ void CRobotAllDlg::OnBnClickedButton1() // the button "Start"
 			gKineAll.FindFK();
 			gKineAll.FindCOG();
 			gKineAll.ComputeJacobians();
-		
+			//gKineAll.FloatJacobian();
+
 			//#if RunDynamics						
 			//gKineAll.FindDIni();	// FindDIni請務必放在FindCOG之後 因為在計算上半身轉動慣量時會用到 130925關閉 KF初始在Kine一開始
 			//#endif
@@ -4193,7 +4194,7 @@ void gArmControlThread(void)
 		// 依照輸入解IK 直到收斂
 		//20121214doratom//
 		if(check_slopeangle==1 || (RunDynamics == 1 && TuneWhich > 0) )
-			gKineAll.IKSolve(gXcogIK, gSwingInputIK, gKineAll.TarRotMSwPitch, gKineAll.TarRotMFxPitch, gLArmInputIK, gRArmInputIK, gKineAll.TarRotMLA,gKineAll.TarRotMRA, gIKMethod, &gIKStatus);
+		{}//gKineAll.IKSolve(gXcogIK, gSwingInputIK, gKineAll.TarRotMSwPitch, gKineAll.TarRotMFxPitch, gLArmInputIK, gRArmInputIK, gKineAll.TarRotMLA,gKineAll.TarRotMRA, gIKMethod, &gIKStatus);
 		else
 			gKineAll.IKSolve(gXcogIK, gSwingInputIK, gKineAll.TarRotMSw, gKineAll.TarRotMFx, gLArmInputIK, gRArmInputIK, gKineAll.TarRotMLA, gKineAll.TarRotMRA, gIKMethod, &gIKStatus);
 		/*if(gIKStatus == 0)
