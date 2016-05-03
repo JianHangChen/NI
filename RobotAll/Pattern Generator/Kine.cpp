@@ -5668,7 +5668,7 @@ void Kine::Werr(double Rnow[9],double Rref[9],double werr[3])
 	*/
 	double Rerr[9]; double el[3]; double norm_el; 
 	MatMulAtB(Rnow ,3,3,Rref , 3,3, Rerr);
-	double eps=0.000001;
+	double eps=0.05;
 	el[0]=Rerr[7]-Rerr[5];
 	el[1]=Rerr[2]-Rerr[6];
 	el[2]=Rerr[3]-Rerr[1];
@@ -5716,9 +5716,17 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 
 	//SwErrLim = 0.1; // swing 解IK 誤差值
 	//COGErrLim = 0.1; // COG 解IK 誤差值
-	// Slongz 0516
-		//////int min_a=-5;
-		//////double a=(rand() % (min_a*(-2)  )   )+min_a; 
+
+
+	//test
+	tRSwing[0]=1;tRSwing[1]=0;tRSwing[2]=0;
+	tRSwing[3]=0;tRSwing[4]=1;tRSwing[5]=0;
+	tRSwing[6]=0;tRSwing[7]=0;tRSwing[8]=1;
+	
+	tRFixed[0]=1;tRFixed[1]=0;tRFixed[2]=0;
+	tRFixed[3]=0;tRFixed[4]=1;tRFixed[5]=0;
+	tRFixed[6]=0;tRFixed[7]=0;tRFixed[8]=1;
+	
 
 	int MatIndex = 0;
 
@@ -5748,22 +5756,7 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 		else if (selIK == RightSupport || selIK == DoubleSupport)
 		{
 		// solve IK
-			//double QQ=FKLLeg->theta[4]*180/3.1415926;
-			//if(QQ<19)
-			//flagQQ=0;
 
-			//if(flagQQ)
-			//{
-			//SwingErr[0] = tSwing[0] - CrdAll->data[18];
-			//SwingErr[1] = tSwing[1] - CrdAll->data[19]; 
-			//SwingErr[2] = tSwing[2] - CrdAll->data[20];
-			//}
-			//else
-			//{
-			//SwingErr[0] = 0;
-			//SwingErr[1] = 0; 
-			//SwingErr[2] = 0;
-			//}
 			RLErr[0] = 0;//tFix[0] - CrdAll->data[57];
 			RLErr[1] = 0;//tFix[1] - CrdAll->data[58];
 			RLErr[2] = 0;//tFix[2] - CrdAll->data[59];
@@ -5870,18 +5863,8 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 		//	}
 		//////Slongz 20130122
 
-		if(IKMode == 0)	// 解全身
-		{
-			//泓逸start111227
-			LArmErr[0] = tLArm[0] - CrdAll->data[105];
-			LArmErr[1] = tLArm[1] - CrdAll->data[106];
-			LArmErr[2] = tLArm[2] - CrdAll->data[107];
-			RArmErr[0] = tRArm[0] - CrdAll->data[135];
-			RArmErr[1] = tRArm[1] - CrdAll->data[136];
-			RArmErr[2] = tRArm[2] - CrdAll->data[137];
-			//泓逸end111227
-		}
-
+		if(IKMode == 0)	{}// 解全身
+		
 		// COG error
 		COGErr[0] = tCOG[0] - COG[0];	// 由上一次FindCOG算出的
 		COGErr[1] = tCOG[1] - COG[1];
@@ -5896,6 +5879,7 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 		TarRotMBody[3]=0;TarRotMBody[4]=1;TarRotMBody[5]=0;
 		TarRotMBody[6]=0;TarRotMBody[7]=0;TarRotMBody[8]=1;
 		Werr(BodyRotM,TarRotMBody,DiffRotMatBody);
+		//DiffRotMatBody[0]=0;DiffRotMatBody[1]=0;DiffRotMatBody[2]=0;
 
 		//MatMulABt(TarRotMBody ,3,3,BodyRotM , 3,3, DiffRotMatBody);
 
@@ -5904,7 +5888,7 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 		//temp_vec1[2] = DiffRotMatBody[3];
 
 
-		if (selIK == 0)	// SUPPORT LEG
+		if (selIK == 0)	// left SUPPORT LEG
 		{	
 			Werr(LLegRotM,tRFixed,DiffRotMatLL);
 			Werr(RLegRotM,tRSwing,DiffRotMatRL);
@@ -5920,7 +5904,8 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 			//MatMulABt(tRFixed ,3,3,RLegRotM, 3,3, DiffRotMatRL);
 		}
 
-
+		//DiffRotMatLL[0]=0;DiffRotMatLL[1]=0;DiffRotMatLL[2]=0; //left leg rotation matrix has severe problem
+		//DiffRotMatRL[0]=0;DiffRotMatRL[1]=0;DiffRotMatRL[2]=0;
 		//MatMulABt(TarRotMBody ,3,3,BodyRotM , 3,3, DiffRotMatBody);
 
 		//temp_vec1[0] = DiffRotMatLL[7];//*SwingFreeCoef[gIthIK%gStepSample];
@@ -5934,17 +5919,7 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 			//	cout<<tRSwing[i]<<endl;
 
 		if(IKMode == 0)	// 解全身
-		{
-			MatMulABt(tRLArm ,3,3,LArmRotM , 3,3, DiffRotMatLA);	// LArmRot 由 GetLegsCoords() 得到
-			MatMulABt(tRRArm ,3,3,RArmRotM , 3,3, DiffRotMatRA);
-
-			temp_vec3[0] = DiffRotMatLA[7];
-			temp_vec3[1] = DiffRotMatLA[2];
-			temp_vec3[2] = DiffRotMatLA[3];
-			temp_vec4[0] = DiffRotMatRA[7];
-			temp_vec4[1] = DiffRotMatRA[2];
-			temp_vec4[2] = DiffRotMatRA[3];
-		}
+		{		}
 
 		// check whether the input trajectories continuous or not
 
@@ -5954,10 +5929,10 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 	    // 0.25 * 200 = 50mm/s 最快每秒5cm
 	    //MaxRotationError = 0.0035; // maximum input angle trajectory difference 防止機構衝太快
     	// 0.0035 * 200 * 57 每秒最快40度
-		if (NormXYZD(SwingErr) >=  MaxSwingError)
+		if (NormXYZD(RLErr) >=  MaxSwingError)
 		{
-			printf("\n警告!! 輸入 Swing 軌跡不連續 或者 IK 爆掉!!\n");
-			printf("error = %f mm\n",NormXYZD(SwingErr));
+			printf("\n警告!! 輸入 RLegPosition 軌跡不連續 或者 IK 爆掉!!\n");
+			printf("error = %f mm\n",NormXYZD(RLErr));
 			#if RunDynamics
 			for (int i = 0 ; i < 3 ; ++i){
 				SwingErr[i] *= MaxSwingError/NormXYZD(SwingErr);	// 限制最大速度
@@ -5966,6 +5941,20 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 			//system("pause");
 			#endif
 		}
+
+		if (NormXYZD(LLErr) >=  MaxSwingError)
+		{
+			printf("\n警告!! 輸入 LLegPosition 軌跡不連續 或者 IK 爆掉!!\n");
+			printf("error = %f mm\n",NormXYZD(LLErr));
+			#if RunDynamics
+			for (int i = 0 ; i < 3 ; ++i){
+				SwingErr[i] *= MaxSwingError/NormXYZD(SwingErr);	// 限制最大速度
+			}
+			#else
+			//system("pause");
+			#endif
+		}
+
 		if (NormXYZD(COGErr) >=  MaxCOGError)
 		{
 			printf("\n警告!! 輸入 COG 軌跡不連續 或者 IK 爆掉!!\n");
@@ -5978,10 +5967,10 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 			//system("pause");	
 			#endif
 		}
-		if (NormXYZD(temp_vec2) >=  MaxRotationError)
+		if (NormXYZD(DiffRotMatLL) >=  MaxRotationError)
 		{
-			printf("\n警告!! 輸入 Swing旋轉 軌跡不連續 或者 IK 爆掉!!\n");
-			printf("rotation speed = %f X 200/s\n",NormXYZD(temp_vec2));
+			printf("\n警告!! 輸入 LLeg 旋轉 軌跡不連續 或者 IK 爆掉!!\n");
+			printf("rotation speed = %f X 200/s\n",NormXYZD(DiffRotMatLL));
 			#if RunDynamics
 			for (int i = 0 ; i < 3 ; ++i){
 				temp_vec2[i] *= MaxRotationError/NormXYZD(temp_vec2);	// 限制最大速度
@@ -5990,10 +5979,10 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 			//system("pause");		
 			#endif
 		}
-		if (NormXYZD(temp_vec1) >=  MaxRotationError)
+		if (NormXYZD(DiffRotMatRL) >=  MaxRotationError)
 		{
-			printf("\n警告!! 輸入 Stance Foot 旋轉 軌跡不連續 或者 IK 爆掉!!\n");
-			printf("rotation speed = %f X 200/s\n",NormXYZD(temp_vec1));
+			printf("\n警告!! 輸入 RLeg 旋轉 軌跡不連續 或者 IK 爆掉!!\n");
+			printf("rotation speed = %f X 200/s\n",NormXYZD(DiffRotMatRL));
 			#if RunDynamics			
 			for (int i = 0 ; i < 3 ; ++i){
 				temp_vec1[i] *= MaxRotationError/NormXYZD(temp_vec1);	// 限制最大速度
@@ -6002,47 +5991,27 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 			//system("pause");
 			#endif
 		}
-		if(IKMode == 0)	// 解全身
+		
+		if (NormXYZD(DiffRotMatBody) >=  MaxRotationError)
 		{
-			if (NormXYZD(temp_vec3) >=  MaxRotationError)
-			{
-				printf("\n警告!! 輸入 LeftArm 旋轉 軌跡不連續 或者 IK 爆掉!!\n");
-				printf("rotation speed = %f X 200/s\n",NormXYZD(temp_vec3));
-			//	system("pause");
+			printf("\n警告!! 輸入 Body 旋轉 軌跡不連續 或者 IK 爆掉!!\n");
+			printf("rotation speed = %f X 200/s\n",NormXYZD(DiffRotMatBody));
+			#if RunDynamics			
+			for (int i = 0 ; i < 3 ; ++i){
+				temp_vec1[i] *= MaxRotationError/NormXYZD(temp_vec1);	// 限制最大速度
 			}
-			if (NormXYZD(temp_vec4) >=  MaxRotationError)
-			{
-				printf("\n警告!! 輸入 RightArm 旋轉 軌跡不連續 或者 IK 爆掉!!\n");
-				printf("rotation speed = %f X 200/s\n",NormXYZD(temp_vec4));
-			//	system("pause");
-			}
-			if (NormXYZD(LArmErr) >=  MaxSwingError)
-			{
-				printf("\n警告!! 輸入 LArmErr 軌跡不連續 或者 IK 爆掉!!\n");
-				printf("error = %f mm\n",NormXYZD(LArmErr));
-			//	system("pause");
-			}
-			if (NormXYZD(RArmErr) >=  MaxSwingError)
-			{
-				printf("\n警告!! 輸入 RArmErr 軌跡不連續 或者 IK 爆掉!!\n");
-				printf("error = %f mm\n",NormXYZD(RArmErr));
-			//	system("pause");
-			}
+			#else
+			//system("pause");
+			#endif
 		}
 
 		if(IKMode == 0)	// 解全身
-		{
-			if (NormXYZD(SwingErr) < SwErrLim && NormXYZD(COGErr) < COGErrLim && NormXYZD(temp_vec2) < AngleErrLim && NormXYZD(temp_vec1) < AngleErrLim && NormXYZD(LArmErr) < SwErrLim && NormXYZD(RArmErr) < SwErrLim  && NormXYZD(temp_vec3) < AngleErrLim && NormXYZD(temp_vec4) < AngleErrLim)
-			{
-				//printf("CNT = %d \n",cntIK);
-				cntIK = 0;
-				*status = 1; // IK succeed!!
-				break;
-			}
-		}
+		{		}
+		if(IKMode == 0)	// 解全身
+		{		}
 		else if(IKMode == 1)	// 只解腳
 		{
-			if (NormXYZD(SwingErr) < SwErrLim && NormXYZD(COGErr) < COGErrLim && NormXYZD(temp_vec2) < AngleErrLim && NormXYZD(temp_vec1) < AngleErrLim )
+			if (NormXYZD(RLErr) < SwErrLim && NormXYZD(LLErr) < SwErrLim && NormXYZD(COGErr) < COGErrLim && NormXYZD(DiffRotMatBody) < AngleErrLim && NormXYZD(DiffRotMatRL) < AngleErrLim  && NormXYZD(DiffRotMatLL) < AngleErrLim  )
 			{
 				if (cntIK == 0)	// 補FK COG 為了讓蹲姿也可以給上半身軌跡 140414 WZ
 				{
@@ -6058,7 +6027,7 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 			}
 		}
 
-		if (cntIK >= 30)	// 在30次以內 沒有解成功
+		if (cntIK >= 60)	// 在30次以內 沒有解成功
 		{
 			//cntIK = 0;
 			*status = 0; // IK failed!!
@@ -6083,32 +6052,7 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
     // selIK = 1 : right foot is the supporter
 
 		if(IKMode == 0)	// 解全身
-		{
-			dx[0] = SwingErr[0];
-			dx[1] = SwingErr[1];
-			dx[2] = SwingErr[2];
-			dx[3] = DiffRotMatSw[7];
-			dx[4] = DiffRotMatSw[2];
-			dx[5] = DiffRotMatSw[3];
-			dx[6] = -DiffRotMatBody[7];
-			dx[7] = -DiffRotMatBody[2];
-			dx[8] = -DiffRotMatBody[3];
-			dx[9] = LArmErr[0];
-			dx[10] = LArmErr[1];
-			dx[11] = LArmErr[2];
-			dx[12] = DiffRotMatLA[7];
-			dx[13] = DiffRotMatLA[2];
-			dx[14] = DiffRotMatLA[3];
-			dx[15] = RArmErr[0];
-			dx[16] = RArmErr[1];
-			dx[17] = RArmErr[2];
-			dx[18] = DiffRotMatRA[7];
-			dx[19] = DiffRotMatRA[2];
-			dx[20] = DiffRotMatRA[3];
-			dx[21] = COGErr[0];
-			dx[22] = COGErr[1];
-			dx[23] = COGErr[2];
-		}
+		{		}
 		else if(IKMode == 1)	// 只解腳
 		{
 
@@ -6156,44 +6100,7 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 		//}
 
 		if(IKMode == 0)	// 解全身
-		{
-			for (int i = 0 ; i < Ja->MSize ; i++) // copy J
-			{
-				tempJ[i] = Ja->data[i];
-			}
-
-			InvSqMat(tempJ,Ja->MRow);
-			MatMulAB(tempJ,Ja->MRow,Ja->MRow,dx,Ja->MRow,1,dth);
-			for (int i = 0 ; i < 12 ; i++)
-			{
-				if (fabs(dth[i]) > MaxJointAngleChange)
-				{
-					//cout<<dth[i]/3.1415926*180*200<<endl;
-					printf("\n警告!! 解出之第%d軸角速度過快 達到 每秒%f度\n",i+1,dth[i]/3.1415926*180*200);
-					printf("可能是輸入軌跡不連續或者IK爆掉\n");
-					//system("pause");
-				}
-			}
-			for(int i = 0;i<12;i++)
-			{
-				if (fabs(dth[i+12]) > MaxJointAngleChange)
-				{
-					//cout<<dth[i]/3.1415926*180*200<<endl;
-					printf("\n警告!! 解出之第%d軸角速度過快 達到 每秒%f度\n",i+1+12,dth[i+12]/3.1415926*180*200);
-					printf("可能是輸入軌跡不連續或者IK爆掉\n");
-					//system("pause");
-				}
-			}
-
-			for (int i = 0 ; i < 6 ; i++)
-			{
-				FKLLeg->theta[i+1] += dth[i];
-				FKRLeg->theta[i+1] += dth[i+6];
-				FKLArm->theta[i+4] += dth[i+12];
-				FKRArm->theta[i+4] += dth[i+18];
-			}
-
-		}
+		{		}
 		else if(IKMode == 1)	// 只解腳
 		{
 
@@ -7135,10 +7042,12 @@ void Kine::GetLegsCoords(void)  // Also compute body coordinates
 	Note: 取出腳以及腰的坐標系旋轉矩陣
 	******************************************************************/
 	// x axis -> joint 9 - joint 10
+
+
 	LLegRotM[0] = (CrdAll->data[27]-CrdAll->data[30])/LenEdgeXYZ[0];
 	LLegRotM[3] = (CrdAll->data[28]-CrdAll->data[31])/LenEdgeXYZ[0];
 	LLegRotM[6] = (CrdAll->data[29]-CrdAll->data[32])/LenEdgeXYZ[0];
-
+	
 	// y axis -> joint 11 - joint 10
 	LLegRotM[1] = (CrdAll->data[33]-CrdAll->data[30])/LenEdgeXYZ[1];
 	LLegRotM[4] = (CrdAll->data[34]-CrdAll->data[31])/LenEdgeXYZ[1];
@@ -7148,6 +7057,9 @@ void Kine::GetLegsCoords(void)  // Also compute body coordinates
 	LLegRotM[2] = (CrdAll->data[18]-CrdAll->data[21])/LenEdgeXYZ[2];
 	LLegRotM[5] = (CrdAll->data[19]-CrdAll->data[22])/LenEdgeXYZ[2];
 	LLegRotM[8] = (CrdAll->data[20]-CrdAll->data[23])/LenEdgeXYZ[2];
+	
+	//showMat(LLegRotM,3,3,"Left Leg Rotation Matrix");
+
 
 	// x axis -> joint 21 - joint 24
 	RLegRotM[0] = (CrdAll->data[63]-CrdAll->data[72])/LenEdgeXYZ[0];
@@ -7164,6 +7076,8 @@ void Kine::GetLegsCoords(void)  // Also compute body coordinates
 	RLegRotM[5] = (CrdAll->data[58]-CrdAll->data[61])/LenEdgeXYZ[2];
 	RLegRotM[8] = (CrdAll->data[59]-CrdAll->data[62])/LenEdgeXYZ[2];
 
+	//showMat(RLegRotM,3,3,"Right Leg Rotation Matrix");
+
 	// y axis
 	BodyRotM[1] = (CrdAll->data[0]-CrdAll->data[39])/160.0;
 	BodyRotM[4] = (CrdAll->data[1]-CrdAll->data[40])/160.0;
@@ -7178,6 +7092,10 @@ void Kine::GetLegsCoords(void)  // Also compute body coordinates
 	BodyRotM[0] = BodyRotM[4]*BodyRotM[8] - BodyRotM[7]*BodyRotM[5];
 	BodyRotM[3] = BodyRotM[7]*BodyRotM[2] - BodyRotM[1]*BodyRotM[8];
 	BodyRotM[6] = BodyRotM[1]*BodyRotM[5] - BodyRotM[4]*BodyRotM[2];
+
+	//showMat(BodyRotM,3,3,"Body Rotation Matrix");
+
+	//system("pause");
 
 	//泓逸start111227
 	//x-axis
