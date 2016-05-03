@@ -3684,8 +3684,6 @@ void gArmControlThread(void)
 		AngR = gAngRBuf[gIthIK%gStepSample];
 		
 		//20121214doratom//
-		AngPitchL = gPitchAngLBuf[gIthIK%gStepSample];
-		AngPitchR = gPitchAngRBuf[gIthIK%gStepSample];
 
 		AngPitchL = gPitchAngLBuf[gIthIK%gStepSample];
 		AngPitchR = gPitchAngRBuf[gIthIK%gStepSample];
@@ -4240,74 +4238,74 @@ void gArmControlThread(void)
 			// selIK = 1 : right foot is the supporter
 			if (gKineAll.FlagSumoMode == 1)   //FlagSumoMode == 1 長時間站立
 			{
-				// 展示單腳站立 這是寫死的 gKineAll.FlagSumoMode = 0 是一般模式 可接受各種軌跡
-				if (gKineAll.stepIndex == 1) // 1~3 共三個step 腳抬起來
-				{
-					// gLAngZWorld 因為預想兩隻腳要平行 所以只用取一隻腳的角度
-					gStrideX = -25*sin(gLAngZWorld);
-					gStrideY = 25*cos(gLAngZWorld);
-					gStrideZ = 45;
-				}
-				else if (gKineAll.stepIndex == 2) // 1~3 共三個step 腳再抬高
-				{
-					gStrideX = -45*sin(gLAngZWorld);
-					gStrideY = 45*cos(gLAngZWorld);
-					gStrideZ = 45;
-				}
-				else if (gKineAll.stepIndex == 3) // 1~3 共三個step 放下腳
-				{
-					gStrideX = 70*sin(gLAngZWorld);
-					gStrideY = -70*cos(gLAngZWorld);
-					gStrideZ = -90;
-					//system("pause");
-				}
-				else if (gKineAll.stepIndex == 4) // 換重心 準備換腳
-				{
-					gStrideX = 25*sin(gLAngZWorld);
-					gStrideY = -25*cos(gLAngZWorld);
-					gStrideZ = 45;
-					//system("pause");
-				}
-				else if (gKineAll.stepIndex == 5) // 5~7 共三個step 腳抬起來
-				{
-					gStrideX = 45*sin(gLAngZWorld);
-					gStrideY = -45*cos(gLAngZWorld);
-					gStrideZ = 45;
-				}
-				else if (gKineAll.stepIndex == 6) // 5~7 共三個step 腳再抬高
-				{
-					gStrideX = -70*sin(gLAngZWorld);
-					gStrideY = 70*cos(gLAngZWorld);
-					gStrideZ = -90;
-				}
-				else if (gKineAll.stepIndex == 7) // 5~7 共三個step 放下腳
-				{
-					gStrideX = 0;
-					gStrideY = 0;
-					gStrideZ = 0;
-				}
-				else if (gKineAll.stepIndex == 8) // 收勢
-				{
+				//// 展示單腳站立 這是寫死的 gKineAll.FlagSumoMode = 0 是一般模式 可接受各種軌跡
+				//if (gKineAll.stepIndex == 1) // 1~3 共三個step 腳抬起來
+				//{
+				//	// gLAngZWorld 因為預想兩隻腳要平行 所以只用取一隻腳的角度
+				//	gStrideX = -25*sin(gLAngZWorld);
+				//	gStrideY = 25*cos(gLAngZWorld);
+				//	gStrideZ = 45;
+				//}
+				//else if (gKineAll.stepIndex == 2) // 1~3 共三個step 腳再抬高
+				//{
+				//	gStrideX = -45*sin(gLAngZWorld);
+				//	gStrideY = 45*cos(gLAngZWorld);
+				//	gStrideZ = 45;
+				//}
+				//else if (gKineAll.stepIndex == 3) // 1~3 共三個step 放下腳
+				//{
+				//	gStrideX = 70*sin(gLAngZWorld);
+				//	gStrideY = -70*cos(gLAngZWorld);
+				//	gStrideZ = -90;
+				//	//system("pause");
+				//}
+				//else if (gKineAll.stepIndex == 4) // 換重心 準備換腳
+				//{
+				//	gStrideX = 25*sin(gLAngZWorld);
+				//	gStrideY = -25*cos(gLAngZWorld);
+				//	gStrideZ = 45;
+				//	//system("pause");
+				//}
+				//else if (gKineAll.stepIndex == 5) // 5~7 共三個step 腳抬起來
+				//{
+				//	gStrideX = 45*sin(gLAngZWorld);
+				//	gStrideY = -45*cos(gLAngZWorld);
+				//	gStrideZ = 45;
+				//}
+				//else if (gKineAll.stepIndex == 6) // 5~7 共三個step 腳再抬高
+				//{
+				//	gStrideX = -70*sin(gLAngZWorld);
+				//	gStrideY = 70*cos(gLAngZWorld);
+				//	gStrideZ = -90;
+				//}
+				//else if (gKineAll.stepIndex == 7) // 5~7 共三個step 放下腳
+				//{
+				//	gStrideX = 0;
+				//	gStrideY = 0;
+				//	gStrideZ = 0;
+				//}
+				//else if (gKineAll.stepIndex == 8) // 收勢
+				//{
 
-				}
+				//}
 
-				 //平滑連接
-				for (int pz = 0 ; pz < 10; pz++)
-				{
-					gKineAll.SwingBufferx[pz] = 0;
-					gKineAll.SwingBuffery[pz] = 0;
-					gKineAll.SwingBufferz[pz] = 0;
-				}
-				// 從開始第10格就動
-				gKineAll.GenSmoothZMPShift_ZeroJerk(0,gStrideX,gNab+gNza-10,gKineAll.SwingBufferx+10);
-				gKineAll.GenSmoothZMPShift_ZeroJerk(0,gStrideY,gNab+gNza-10,gKineAll.SwingBuffery+10);
-				gKineAll.GenSmoothZMPShift_ZeroJerk(0,gStrideZ,gNab+gNza-10,gKineAll.SwingBufferz+10);
-				for (int pz = gNab+gNza ; pz < gStepSample; pz++)
-				{
-					gKineAll.SwingBufferx[pz] = gStrideX;
-					gKineAll.SwingBuffery[pz] = gStrideY;
-					gKineAll.SwingBufferz[pz] = gStrideZ;
-				}
+				// //平滑連接
+				//for (int pz = 0 ; pz < 10; pz++)
+				//{
+				//	gKineAll.SwingBufferx[pz] = 0;
+				//	gKineAll.SwingBuffery[pz] = 0;
+				//	gKineAll.SwingBufferz[pz] = 0;
+				//}
+				//// 從開始第10格就動
+				//gKineAll.GenSmoothZMPShift_ZeroJerk(0,gStrideX,gNab+gNza-10,gKineAll.SwingBufferx+10);
+				//gKineAll.GenSmoothZMPShift_ZeroJerk(0,gStrideY,gNab+gNza-10,gKineAll.SwingBuffery+10);
+				//gKineAll.GenSmoothZMPShift_ZeroJerk(0,gStrideZ,gNab+gNza-10,gKineAll.SwingBufferz+10);
+				//for (int pz = gNab+gNza ; pz < gStepSample; pz++)
+				//{
+				//	gKineAll.SwingBufferx[pz] = gStrideX;
+				//	gKineAll.SwingBuffery[pz] = gStrideY;
+				//	gKineAll.SwingBufferz[pz] = gStrideZ;
+				//}
 
 			}
 			else  //不需要長時間站立 一般模式
@@ -4374,12 +4372,12 @@ void gArmControlThread(void)
 
 				if (gKineAll.stepIndex == 0)  // 基本上不會進這個if 因為一開始就會是1
 				{
-					for (int i =0 ; i< gKineAll.N_step ; i++)
-					{
-						gKineAll.SwingBufferx[i] = 0;
-						gKineAll.SwingBuffery[i] = 0;
-						gKineAll.SwingBufferz[i] = 0;
-					}
+					//for (int i =0 ; i< gKineAll.N_step ; i++)
+					//{
+					//	gKineAll.SwingBufferx[i] = 0;
+					//	gKineAll.SwingBuffery[i] = 0;
+					//	gKineAll.SwingBufferz[i] = 0;
+					//}
 				}
 				else
 				{
@@ -4432,9 +4430,7 @@ void gArmControlThread(void)
 
 
 			if (gKineAll.stepIndex == 0) // initial step (DSP) // 基本上不會進這個if 因為一開始就會是1
-			{
-				// do nothing
-			}
+			{}
 			else
 			{
 				// 算出兩腳角度旋轉軌跡

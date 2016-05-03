@@ -5719,13 +5719,13 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 
 
 	//test
-	tRSwing[0]=1;tRSwing[1]=0;tRSwing[2]=0;
+	/*tRSwing[0]=1;tRSwing[1]=0;tRSwing[2]=0;
 	tRSwing[3]=0;tRSwing[4]=1;tRSwing[5]=0;
 	tRSwing[6]=0;tRSwing[7]=0;tRSwing[8]=1;
-	
-	tRFixed[0]=1;tRFixed[1]=0;tRFixed[2]=0;
-	tRFixed[3]=0;tRFixed[4]=1;tRFixed[5]=0;
-	tRFixed[6]=0;tRFixed[7]=0;tRFixed[8]=1;
+	*/
+	//tRFixed[0]=1;tRFixed[1]=0;tRFixed[2]=0;
+	//tRFixed[3]=0;tRFixed[4]=1;tRFixed[5]=0;
+	//tRFixed[6]=0;tRFixed[7]=0;tRFixed[8]=1;
 	
 
 	int MatIndex = 0;
@@ -5879,7 +5879,7 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 		TarRotMBody[3]=0;TarRotMBody[4]=1;TarRotMBody[5]=0;
 		TarRotMBody[6]=0;TarRotMBody[7]=0;TarRotMBody[8]=1;
 		Werr(BodyRotM,TarRotMBody,DiffRotMatBody);
-		//DiffRotMatBody[0]=0;DiffRotMatBody[1]=0;DiffRotMatBody[2]=0;
+		//DiffRotMatBody[0]=0;DiffRotMatBody[1]=0;DiffRotMatBody[2]=0;//test
 
 		//MatMulABt(TarRotMBody ,3,3,BodyRotM , 3,3, DiffRotMatBody);
 
@@ -6027,7 +6027,7 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 			}
 		}
 
-		if (cntIK >= 60)	// 在30次以內 沒有解成功
+		if (cntIK >= 30)	// 在30次以內 沒有解成功
 		{
 			//cntIK = 0;
 			*status = 0; // IK failed!!
@@ -7059,7 +7059,6 @@ void Kine::GetLegsCoords(void)  // Also compute body coordinates
 	LLegRotM[8] = (CrdAll->data[20]-CrdAll->data[23])/LenEdgeXYZ[2];
 	
 	//showMat(LLegRotM,3,3,"Left Leg Rotation Matrix");
-
 
 	// x axis -> joint 21 - joint 24
 	RLegRotM[0] = (CrdAll->data[63]-CrdAll->data[72])/LenEdgeXYZ[0];
