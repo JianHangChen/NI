@@ -5674,7 +5674,7 @@ void Kine::Werr(double Rnow[9],double Rref[9],double werr[3])
 	//InvSqMat(Rinv,3);//test
 	//MatMulAB(Rinv ,3,3,Rref , 3,3, Rerr); //test
 	MatMulAtB(Rnow ,3,3,Rref , 3,3, Rerr);
-	double eps=0.03;
+	double eps=0.01;
 	el[0]=Rerr[7]-Rerr[5];
 	el[1]=Rerr[2]-Rerr[6];
 	el[2]=Rerr[3]-Rerr[1];
@@ -5692,7 +5692,10 @@ void Kine::Werr(double Rnow[9],double Rref[9],double werr[3])
 		werr[1] = PI/2* ( Rerr[4] + 1);
 		werr[2] = PI/2* ( Rerr[8] + 1);
 	}
-	
+		werr[0] /= 5 ;
+		werr[1] /= 5;
+		werr[2] /= 5;
+
 }
 void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixed,double* tLArm, double* tRArm,double* tRLArm, double* tRRArm,int IKMode, int* status)
 {
@@ -5902,7 +5905,7 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 			//MatMulABt(tRSwing ,3,3,RLegRotM, 3,3, DiffRotMatRL);
 		}
 
-		else
+		else //right support
 		{			
 			Werr(LLegRotM,tRSwing,DiffRotMatLL);
 			Werr(RLegRotM,tRFixed,DiffRotMatRL);

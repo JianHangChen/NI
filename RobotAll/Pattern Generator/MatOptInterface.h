@@ -54,6 +54,8 @@ void MatAddAB(double* A, double* B, double* result, int Len);  // 矩陣加法 A+B
 void dare_sqrmat_matlab(double * Data, double * Data_U, int NCol);//進行方陣的schur decomposition 算出U和T矩陣，[U,T] = schur(A,...) also returns a unitary matrix U so that A = U*T*U' and U'*U = eye(size(A)).
 logical SELECT_eigen(double *ar,double *ai);//lapack dgees function中，用來選擇特徵值進行排列的函數
 
+
+//201604 start 
 void Mat_weighted_mean( double* A, int MA, int NA,double WA, double* B, int MB, int NB,double WB, double* result); 
 void Mat_I_nxn( double* result, int n );//return I nxn (單位矩陣)
 void Mat_O_mxn(double* result,int m, int n);
@@ -63,3 +65,9 @@ void Mat_A_addrow_B(double* A, int MA, int NA, double* B, int MB, int NB, double
 void Mat_A_B_At(double* A, int MA, int NA, double* B, int MB, int NB, double* result);
 void showMat(double* A,int Nrow, int Ncol, char * MatName );//ok
 void showVar(double x,char * VarName);//ok
+
+void R_rpy( double r,double p, double y ,double *result); //160504 r,p,y angle to Rotation Matrix
+
+
+
+//201604 end

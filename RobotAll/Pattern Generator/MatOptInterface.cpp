@@ -939,3 +939,14 @@ void showVar(double x,char * VarName)
 	cout<<"\t"<<x<<endl;
 	cout << endl;
 }
+
+void R_rpy( double r,double p, double y,double *result )
+{
+	double Rzy[9] = { cos(y),-sin(y),0,sin(y),cos(y),0,0,0,1 };
+	double Ryp[9] = { cos(p),0 , sin(p),0,1,0, -sin(p),0,cos(p) };
+	double Rxr[9] = { 1 ,0 ,0, 0 ,cos(r),-sin(r),0,sin(r),cos(r)};
+
+	double tmp[9];
+	MatMulAB(Rzy,3,3,Ryp,3,3,tmp);
+	MatMulAB(tmp,3,3,Rxr,3,3,result);
+}

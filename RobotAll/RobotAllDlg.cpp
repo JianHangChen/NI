@@ -3680,7 +3680,7 @@ void gArmControlThread(void)
 		}
 		
 		// 設定 swing fix 腳 角度  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		AngL = gAngLBuf[gIthIK%gStepSample];
+		AngL = gAngLBuf[gIthIK%gStepSample];// double (gIthIK%gStepSample) /double(gStepSample);//gAngLBuf[gIthIK%gStepSample];
 		AngR = gAngRBuf[gIthIK%gStepSample];
 		
 		//20121214doratom//
@@ -3725,17 +3725,9 @@ void gArmControlThread(void)
 
 		if (gKineAll.selIK == LeftSupport)
 		{
-			gKineAll.TarRotMSw[0] = cos(AngR); gKineAll.TarRotMSw[1] = -sin(AngR); gKineAll.TarRotMSw[2] = 0;
-			gKineAll.TarRotMSw[3] = sin(AngR); gKineAll.TarRotMSw[4] = cos(AngR); gKineAll.TarRotMSw[5] = 0;
-			gKineAll.TarRotMSw[6] = 0; gKineAll.TarRotMSw[7] = 0; gKineAll.TarRotMSw[8] = 1;
-			//gKineAll.TarRotMSw[0] = cos(AngR); gKineAll.TarRotMSw[1] =0 ; gKineAll.TarRotMSw[2] = sin(AngR);
-			//gKineAll.TarRotMSw[3] = 0; gKineAll.TarRotMSw[4] = 1; gKineAll.TarRotMSw[5] = 0;
-			//gKineAll.TarRotMSw[6] = -sin(AngR); gKineAll.TarRotMSw[7] = 0; gKineAll.TarRotMSw[8] = cos(AngR);
-
-			gKineAll.TarRotMFx[0] = cos(AngL); gKineAll.TarRotMFx[1] = -sin(AngL); gKineAll.TarRotMFx[2] = 0;
-			gKineAll.TarRotMFx[3] = sin(AngL); gKineAll.TarRotMFx[4] = cos(AngL); gKineAll.TarRotMFx[5] = 0;
-			gKineAll.TarRotMFx[6] = 0; gKineAll.TarRotMFx[7] = 0; gKineAll.TarRotMFx[8] = 1;
-
+			R_rpy(0,0,AngR,gKineAll.TarRotMSw);
+			//R_rpy(0,AngL,0,gKineAll.TarRotMFx);//test for pitch
+			R_rpy(0,0,AngL,gKineAll.TarRotMFx);
 			if(check_slopeangle ==1)//20121214doratom//
 			{
 				//gKineAll.TarRotMSwPitch[0] = cos(AngPitchR); gKineAll.TarRotMSwPitch[1] = 0 ; gKineAll.TarRotMSwPitch[2] = sin(AngPitchR);
@@ -3773,18 +3765,11 @@ void gArmControlThread(void)
 		}
 		else if (gKineAll.selIK == RightSupport || gKineAll.selIK == DoubleSupport)
 		{
-			gKineAll.TarRotMSw[0] = cos(AngL); gKineAll.TarRotMSw[1] = -sin(AngL); gKineAll.TarRotMSw[2] = 0;
-			gKineAll.TarRotMSw[3] = sin(AngL); gKineAll.TarRotMSw[4] = cos(AngL); gKineAll.TarRotMSw[5] = 0;
-			gKineAll.TarRotMSw[6] = 0; gKineAll.TarRotMSw[7] = 0; gKineAll.TarRotMSw[8] = 1;
 
-			gKineAll.TarRotMFx[0] = cos(AngR); gKineAll.TarRotMFx[1] = -sin(AngR); gKineAll.TarRotMFx[2] = 0;
-			gKineAll.TarRotMFx[3] = sin(AngR); gKineAll.TarRotMFx[4] = cos(AngR); gKineAll.TarRotMFx[5] = 0;
-			gKineAll.TarRotMFx[6] = 0; gKineAll.TarRotMFx[7] = 0; gKineAll.TarRotMFx[8] = 1;
 
-			gKineAll.TarRotMSw[0] = cos(AngL); gKineAll.TarRotMSw[1] = -sin(AngL); gKineAll.TarRotMSw[2] = 0;
-			gKineAll.TarRotMSw[3] = sin(AngL); gKineAll.TarRotMSw[4] = cos(AngL); gKineAll.TarRotMSw[5] = 0;
-			gKineAll.TarRotMSw[6] = 0; gKineAll.TarRotMSw[7] = 0; gKineAll.TarRotMSw[8] = 1;
-
+			//R_rpy(0,AngL,0,gKineAll.TarRotMSw);//test left pich
+			R_rpy(0,0,AngL,gKineAll.TarRotMSw);
+			R_rpy(0,0,AngR,gKineAll.TarRotMFx);
 
 			if(check_slopeangle ==1)//20121214doratom//
 			{
