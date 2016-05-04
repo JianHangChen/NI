@@ -3781,6 +3781,11 @@ void gArmControlThread(void)
 			gKineAll.TarRotMFx[3] = sin(AngR); gKineAll.TarRotMFx[4] = cos(AngR); gKineAll.TarRotMFx[5] = 0;
 			gKineAll.TarRotMFx[6] = 0; gKineAll.TarRotMFx[7] = 0; gKineAll.TarRotMFx[8] = 1;
 
+			gKineAll.TarRotMSw[0] = cos(AngL); gKineAll.TarRotMSw[1] = -sin(AngL); gKineAll.TarRotMSw[2] = 0;
+			gKineAll.TarRotMSw[3] = sin(AngL); gKineAll.TarRotMSw[4] = cos(AngL); gKineAll.TarRotMSw[5] = 0;
+			gKineAll.TarRotMSw[6] = 0; gKineAll.TarRotMSw[7] = 0; gKineAll.TarRotMSw[8] = 1;
+
+
 			if(check_slopeangle ==1)//20121214doratom//
 			{
 				//gKineAll.TarRotMSwPitch[0] = cos(AngPitchL); gKineAll.TarRotMSwPitch[1] = 0 ; gKineAll.TarRotMSwPitch[2] = sin(AngPitchL);

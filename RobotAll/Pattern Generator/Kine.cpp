@@ -5666,9 +5666,15 @@ void Kine::Werr(double Rnow[9],double Rref[9],double werr[3])
 				w = pi/2*[ R(1,1)+1, R(2,2)+1, R(3,3)+1];
 			end
 	*/
+	//double Rinv[9];//test
 	double Rerr[9]; double el[3]; double norm_el; 
+	//for(int i=0;i<9;++i){//test
+	//	Rinv[i]=Rnow[i];
+	//}//test
+	//InvSqMat(Rinv,3);//test
+	//MatMulAB(Rinv ,3,3,Rref , 3,3, Rerr); //test
 	MatMulAtB(Rnow ,3,3,Rref , 3,3, Rerr);
-	double eps=0.05;
+	double eps=0.03;
 	el[0]=Rerr[7]-Rerr[5];
 	el[1]=Rerr[2]-Rerr[6];
 	el[2]=Rerr[3]-Rerr[1];
@@ -5719,10 +5725,10 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 
 
 	//test
-	/*tRSwing[0]=1;tRSwing[1]=0;tRSwing[2]=0;
-	tRSwing[3]=0;tRSwing[4]=1;tRSwing[5]=0;
-	tRSwing[6]=0;tRSwing[7]=0;tRSwing[8]=1;
-	*/
+	//tRSwing[0]=cos(0.5);tRSwing[1]=0;tRSwing[2]=0;
+	//tRSwing[3]=0;tRSwing[4]=1;tRSwing[5]=0;
+	//tRSwing[6]=0;tRSwing[7]=0;tRSwing[8]=1;
+	
 	//tRFixed[0]=1;tRFixed[1]=0;tRFixed[2]=0;
 	//tRFixed[3]=0;tRFixed[4]=1;tRFixed[5]=0;
 	//tRFixed[6]=0;tRFixed[7]=0;tRFixed[8]=1;
@@ -7039,21 +7045,53 @@ void Kine::GetLegsCoords(void)  // Also compute body coordinates
 	input: void
 	output: void
 
+
 	Note: 取出腳以及腰的坐標系旋轉矩陣
 	******************************************************************/
-	// x axis -> joint 9 - joint 10
 
+	double temp[3];
+	double norm;
+
+	// x axis -> joint 9 - joint 10
+	//temp[0] = CrdAll->data[27]-CrdAll->data[30];
+	//temp[1] = CrdAll->data[28]-CrdAll->data[31];
+	//temp[2] = CrdAll->data[29]-CrdAll->data[32];
+	//norm = NormXYZD(temp);
+
+	//LLegRotM[0] = temp[0]/norm;
+	//LLegRotM[3] = temp[1]/norm;
+	//LLegRotM[6] = temp[2]/norm;
 
 	LLegRotM[0] = (CrdAll->data[27]-CrdAll->data[30])/LenEdgeXYZ[0];
 	LLegRotM[3] = (CrdAll->data[28]-CrdAll->data[31])/LenEdgeXYZ[0];
 	LLegRotM[6] = (CrdAll->data[29]-CrdAll->data[32])/LenEdgeXYZ[0];
 	
 	// y axis -> joint 11 - joint 10
+
+	//temp[0] = CrdAll->data[33]-CrdAll->data[30];
+	//temp[1] = CrdAll->data[34]-CrdAll->data[31];
+	//temp[2] = CrdAll->data[35]-CrdAll->data[32];
+	//norm = NormXYZD(temp);
+
+	//LLegRotM[1] = temp[0]/norm;
+	//LLegRotM[4] = temp[1]/norm;
+	//LLegRotM[7] = temp[2]/norm;
+
 	LLegRotM[1] = (CrdAll->data[33]-CrdAll->data[30])/LenEdgeXYZ[1];
 	LLegRotM[4] = (CrdAll->data[34]-CrdAll->data[31])/LenEdgeXYZ[1];
 	LLegRotM[7] = (CrdAll->data[35]-CrdAll->data[32])/LenEdgeXYZ[1];
 
 	// z axis -> joint 6 - joint 7
+
+	//temp[0] = CrdAll->data[18]-CrdAll->data[21];
+	//temp[1] = CrdAll->data[19]-CrdAll->data[22];
+	//temp[2] = CrdAll->data[20]-CrdAll->data[23];
+	//norm = NormXYZD(temp);
+
+	//LLegRotM[2] = temp[0]/norm;
+	//LLegRotM[5] = temp[1]/norm;
+	//LLegRotM[8] = temp[2]/norm;
+
 	LLegRotM[2] = (CrdAll->data[18]-CrdAll->data[21])/LenEdgeXYZ[2];
 	LLegRotM[5] = (CrdAll->data[19]-CrdAll->data[22])/LenEdgeXYZ[2];
 	LLegRotM[8] = (CrdAll->data[20]-CrdAll->data[23])/LenEdgeXYZ[2];
@@ -7083,9 +7121,19 @@ void Kine::GetLegsCoords(void)  // Also compute body coordinates
 	BodyRotM[7] = (CrdAll->data[2]-CrdAll->data[41])/160.0;
 
 	// z axis
-	BodyRotM[2] = (-CrdAll->data[81]+(CrdAll->data[90]+CrdAll->data[120])/2.0)/271.75;
-	BodyRotM[5] = (-CrdAll->data[82]+(CrdAll->data[91]+CrdAll->data[121])/2.0)/271.75;
-	BodyRotM[8] = (-CrdAll->data[83]+(CrdAll->data[92]+CrdAll->data[122])/2.0)/271.75;
+	temp[0] = CrdAll->data[108]-(CrdAll->data[0]+CrdAll->data[39])/2;
+	temp[1] = CrdAll->data[109]-(CrdAll->data[1]+CrdAll->data[40])/2;
+	temp[2] = CrdAll->data[110]-(CrdAll->data[2]+CrdAll->data[41])/2;
+	norm = NormXYZD(temp);
+
+	BodyRotM[2] = temp[0]/norm;
+	BodyRotM[5] = temp[1]/norm;
+	BodyRotM[8] = temp[2]/norm;
+
+	//// z axis
+	//BodyRotM[2] = (-CrdAll->data[81]+(CrdAll->data[90]+CrdAll->data[120])/2.0)/271.75;
+	//BodyRotM[5] = (-CrdAll->data[82]+(CrdAll->data[91]+CrdAll->data[121])/2.0)/271.75;
+	//BodyRotM[8] = (-CrdAll->data[83]+(CrdAll->data[92]+CrdAll->data[122])/2.0)/271.75;
 
 	// x axis (x = y cross z)
 	BodyRotM[0] = BodyRotM[4]*BodyRotM[8] - BodyRotM[7]*BodyRotM[5];

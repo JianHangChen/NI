@@ -881,6 +881,7 @@ public:
 
 
 		inline void cross2Mat( double *a , double * result); //160425 screw matrix(vector corss product to matrix)
+		inline void R_rpy( double r,double p, double y ,double *result); //160504 r,p,y angle to Rotation Matrix
 };
 
 
@@ -889,4 +890,14 @@ inline void Kine::cross2Mat( double *a , double * result)
 	result[0] = 0;result[1] = -a[2];result[2] = a[1];
 	result[3] = a[2];result[4] = 0;result[5] = -a[0];
 	result[6] = -a[1];result[7] = a[0];result[8] = 0;
+}
+inline void Kine::R_rpy( double r,double p, double y,double *result )
+{
+	double Rzy[9] = { cos(r),-sin(r),0,sin(r),cos(r),0,0,0,1 };
+	double Ryp[9] = { cos(p),0 , sin(p),0,1,0, -sin(p),0,cos(p) };
+	double Rxr[9] = { 1 ,0 ,0, 0 ,cos(r),-sin(r),0,sin(r),cos(r)};
+
+	double tmp[9];
+	MatMulAB(Rzy,3,3,Ryp,3,3,tmp);
+	MatMulAB(tmp,3,3,Rxr,3,3,result);
 }
