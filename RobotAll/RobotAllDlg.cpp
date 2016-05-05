@@ -3619,6 +3619,8 @@ void gArmControlThread(void)
 
 	  double StepProcess = 0.0; // 計算每步進行的百分比 從0~1
 	  double AngL, AngR; // 左右腳在z軸的旋轉方向
+	  double AngLP=-0.1;//左右腳在x軸的旋轉方向
+	  double AngRP=0;
 
 	  double AngPitchL = 0;
 	  double AngPitchR = 0;	  //20121214doratom//
@@ -3664,13 +3666,13 @@ void gArmControlThread(void)
 			// 要記得寫 左腳右腳 記住換腳時的位置
 			gSwingInputIK[0] = gKineAll.remRL[0]+gKineAll.SwingBufferx[gIthIK%gStepSample];
 			gSwingInputIK[1] = gKineAll.remRL[1]+gKineAll.SwingBuffery[gIthIK%gStepSample];
-			gSwingInputIK[2] = gKineAll.remRL[2]+gKineAll.SwingBufferz[gIthIK%gStepSample];				
+			gSwingInputIK[2] = gKineAll.remRL[2]+20*(gIthIK % gStepSample)/double(gStepSample);//gKineAll.SwingBufferz[gIthIK%gStepSample];				
 		}
 		else if (gKineAll.selIK == RightSupport)
 		{
 			gSwingInputIK[0] = gKineAll.remLL[0]+gKineAll.SwingBufferx[gIthIK%gStepSample];
 			gSwingInputIK[1] = gKineAll.remLL[1]+gKineAll.SwingBuffery[gIthIK%gStepSample];
-			gSwingInputIK[2] = gKineAll.remLL[2]+gKineAll.SwingBufferz[gIthIK%gStepSample];		
+			gSwingInputIK[2] = gKineAll.remLL[2]+30*(gIthIK % gStepSample)/double(gStepSample);//gKineAll.SwingBufferz[gIthIK%gStepSample];		
 		}
 		else if (gKineAll.selIK == DoubleSupport)	// 第一次進IKStep會進這個 指定Swing軌跡 每一段劇情的第一個selIK == 2 (在Kine指定的初始值)
 		{
@@ -3680,7 +3682,15 @@ void gArmControlThread(void)
 		}
 		
 		// 設定 swing fix 腳 角度  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		AngL = gAngLBuf[gIthIK%gStepSample];// double (gIthIK%gStepSample) /double(gStepSample);//gAngLBuf[gIthIK%gStepSample];
+		//if(gKineAll.selIK == DoubleSupport)
+		//{
+		//	AngL=0.5;
+		//}
+		//else if(gKineAll.selIK == RightSupport){
+		//	AngL = -0.5*double (gIthIK%gStepSample) /double(gStepSample);// gAngLBuf[gIthIK%gStepSample];//gAngLBuf[gIthIK%gStepSample];
+		//}
+
+		AngL = 0.1;//gAngLBuf[gIthIK%gStepSample];
 		AngR = gAngRBuf[gIthIK%gStepSample];
 		
 		//20121214doratom//
@@ -3725,9 +3735,9 @@ void gArmControlThread(void)
 
 		if (gKineAll.selIK == LeftSupport)
 		{
-			R_rpy(0,0,AngR,gKineAll.TarRotMSw);
+			R_rpy(0,AngRP,AngR,gKineAll.TarRotMSw);
 			//R_rpy(0,AngL,0,gKineAll.TarRotMFx);//test for pitch
-			R_rpy(0,0,AngL,gKineAll.TarRotMFx);
+			R_rpy(0,AngLP,AngL,gKineAll.TarRotMFx);
 			if(check_slopeangle ==1)//20121214doratom//
 			{
 				//gKineAll.TarRotMSwPitch[0] = cos(AngPitchR); gKineAll.TarRotMSwPitch[1] = 0 ; gKineAll.TarRotMSwPitch[2] = sin(AngPitchR);
@@ -3768,8 +3778,8 @@ void gArmControlThread(void)
 
 
 			//R_rpy(0,AngL,0,gKineAll.TarRotMSw);//test left pich
-			R_rpy(0,0,AngL,gKineAll.TarRotMSw);
-			R_rpy(0,0,AngR,gKineAll.TarRotMFx);
+			R_rpy(0,AngLP,AngL,gKineAll.TarRotMSw);
+			R_rpy(0,AngRP,AngR,gKineAll.TarRotMFx);
 
 			if(check_slopeangle ==1)//20121214doratom//
 			{

@@ -5692,7 +5692,7 @@ void Kine::Werr(double Rnow[9],double Rref[9],double werr[3])
 		werr[1] = PI/2* ( Rerr[4] + 1);
 		werr[2] = PI/2* ( Rerr[8] + 1);
 	}
-		werr[0] /= 5 ;
+		werr[0] /= 5;
 		werr[1] /= 5;
 		werr[2] /= 5;
 
@@ -6123,6 +6123,12 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 			{
 				if (fabs(dthLeg[i]) > MaxJointAngleChange)
 				{
+					if(dthLeg[i]>0){
+						dthLeg[i]=MaxJointAngleChange;//20160505
+					}
+					else{
+						dthLeg[i]=-MaxJointAngleChange;
+					}
 					//cout<<dthLeg[i]/3.1415926*180*200<<endl;
 					//printf("\n警告!! 解出之第%d軸角速度過快 達到 每秒%f度\n",i+1,dthLeg[i]/3.1415926*180*200);WZ0419
 					//printf("可能是輸入軌跡不連續或者IK爆掉\n");WZ0419
