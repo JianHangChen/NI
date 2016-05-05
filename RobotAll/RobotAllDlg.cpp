@@ -3619,7 +3619,20 @@ void gArmControlThread(void)
 
 	  double StepProcess = 0.0; // 計算每步進行的百分比 從0~1
 	  double AngL, AngR; // 左右腳在z軸的旋轉方向
-	  double AngLP=-0.1;//左右腳在x軸的旋轉方向
+	
+	 // 設定 swing fix 腳 角度  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//if(gKineAll.selIK == DoubleSupport)
+		//{
+		//	AngL=0.5;
+		//}
+		//else if(gKineAll.selIK == RightSupport){
+		//	AngL = -0.5*double (gIthIK%gStepSample) /double(gStepSample);// gAngLBuf[gIthIK%gStepSample];//gAngLBuf[gIthIK%gStepSample];
+		//}
+
+	  AngL = gAngLBuf[gIthIK%gStepSample];
+	  AngR = gAngRBuf[gIthIK%gStepSample];
+
+	  double AngLP=0;//左右腳在y軸的旋轉方向
 	  double AngRP=0;
 
 	  double AngPitchL = 0;
@@ -3666,13 +3679,13 @@ void gArmControlThread(void)
 			// 要記得寫 左腳右腳 記住換腳時的位置
 			gSwingInputIK[0] = gKineAll.remRL[0]+gKineAll.SwingBufferx[gIthIK%gStepSample];
 			gSwingInputIK[1] = gKineAll.remRL[1]+gKineAll.SwingBuffery[gIthIK%gStepSample];
-			gSwingInputIK[2] = gKineAll.remRL[2]+20*(gIthIK % gStepSample)/double(gStepSample);//gKineAll.SwingBufferz[gIthIK%gStepSample];				
+			gSwingInputIK[2] = gKineAll.remRL[2]+gKineAll.SwingBufferz[gIthIK%gStepSample];		//20*(gIthIK % gStepSample)/double(gStepSample);//		
 		}
 		else if (gKineAll.selIK == RightSupport)
 		{
 			gSwingInputIK[0] = gKineAll.remLL[0]+gKineAll.SwingBufferx[gIthIK%gStepSample];
 			gSwingInputIK[1] = gKineAll.remLL[1]+gKineAll.SwingBuffery[gIthIK%gStepSample];
-			gSwingInputIK[2] = gKineAll.remLL[2]+30*(gIthIK % gStepSample)/double(gStepSample);//gKineAll.SwingBufferz[gIthIK%gStepSample];		
+			gSwingInputIK[2] = gKineAll.remLL[2]+gKineAll.SwingBufferz[gIthIK%gStepSample];		//30*(gIthIK % gStepSample)/double(gStepSample);
 		}
 		else if (gKineAll.selIK == DoubleSupport)	// 第一次進IKStep會進這個 指定Swing軌跡 每一段劇情的第一個selIK == 2 (在Kine指定的初始值)
 		{
@@ -3681,17 +3694,9 @@ void gArmControlThread(void)
 			gSwingInputIK[2] = gKineAll.remLL[2];				
 		}
 		
-		// 設定 swing fix 腳 角度  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		//if(gKineAll.selIK == DoubleSupport)
-		//{
-		//	AngL=0.5;
-		//}
-		//else if(gKineAll.selIK == RightSupport){
-		//	AngL = -0.5*double (gIthIK%gStepSample) /double(gStepSample);// gAngLBuf[gIthIK%gStepSample];//gAngLBuf[gIthIK%gStepSample];
-		//}
 
-		AngL = 0.1;//gAngLBuf[gIthIK%gStepSample];
-		AngR = gAngRBuf[gIthIK%gStepSample];
+
+
 		
 		//20121214doratom//
 
@@ -7712,6 +7717,40 @@ void gInitWalkStraight(int StepInput, double StepLength)
 
 	//***************20141022變步距簡單測試
 	gFstpY[3]=220;
+
+	////test 160505
+	//	gFstpY[0] = 0;
+	//gFstpY[1] = 0;
+	//gFstpY[2] = 210;
+	//gFstpY[3] = 300;
+	//gFstpY[4] = 400;
+	//gFstpY[5] = 500;
+	//gFstpY[6] = 500;
+	//gFstpY[7] = 500;
+	//
+
+
+	//for (int i = gNumOfStep - 3 ; i < gNumOfStep+5 ; i++)
+	//{
+	//	gFstpY[i] = gFstpY[gNumOfStep-4];
+	//}
+
+	////以上都跟直走一模一樣//
+	//  
+	////設定要踏高的高度//
+	//gGroundHeight[0] = 0.0;
+	//gGroundHeight[1] = 0.0;
+	//gGroundHeight[2] = (gFstpY[2]-114)*tan(-slopeangle);
+	//gGroundHeight[3] = (gFstpY[3]-114)*tan(-slopeangle);
+	//gGroundHeight[4] = (gFstpY[4]-114)*tan(-slopeangle);
+	//gGroundHeight[5] = (gFstpY[5]-114)*tan(-slopeangle);
+	//gGroundHeight[6] = (gFstpY[5])*tan(-slopeangle);
+	//
+	///*for (int i = 3 ; i < gNumOfStep-4 ; i++)
+	//	gGroundHeight[i] = gGroundHeight[i-1]+ (StrideY/2)*tan(-slopeangle);*/
+
+	//for (int i = gNumOfStep-4 ; i < gNumOfStep+25 ; i++)
+	//	gGroundHeight[i] = gGroundHeight[i-1];
 }
 
 
