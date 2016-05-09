@@ -581,6 +581,10 @@ TwinCAT_COM *TCAT;
 	double gPitchAngLBuf[10000]; // 左腳pitch每步旋轉角度軌跡 提供最長每步50秒之暫存空間 用以儲存單步軌跡
 	double gPitchAngRBuf[10000]; // 右腳pitch每步旋轉角度軌跡 提供最長每步50秒之暫存空間 用以儲存單步軌跡
 	//20121214doratom//
+	
+	//20160509 uneven terrain
+	double gAngLPBuf[10000];//pitch buffer for left leg
+	double gAngRPBuf[10000];//pitch buffer for right leg
 
 	double gGroundHeight[10000]; // ground height, 10000步
 
@@ -3632,8 +3636,11 @@ void gArmControlThread(void)
 	  AngL = gAngLBuf[gIthIK%gStepSample];
 	  AngR = gAngRBuf[gIthIK%gStepSample];
 
-	  double AngLP=0;//左右腳在y軸的旋轉方向
+	  double AngLP;//左右腳在y軸的旋轉方向 20160509
 	  double AngRP=0;
+	  AngLP = gAngLPBuf[gIthIK%gStepSample];//20160509
+	  //AngRP = gAngRPBuf[gIthIK%gStepSample];//20160509
+
 
 	  double AngPitchL = 0;
 	  double AngPitchR = 0;	  //20121214doratom//
@@ -3819,46 +3826,46 @@ void gArmControlThread(void)
 			#endif
 		}
 
-		if (RunDynamics == 1 && TuneWhich > 0){
-			gKineAll.TarRotMSwPitch[0] = cos(AngPitchS); gKineAll.TarRotMSwPitch[1] = 0 ; gKineAll.TarRotMSwPitch[2] = sin(AngPitchS);
-			gKineAll.TarRotMSwPitch[3] = sin(AngRollS)*sin(AngPitchS); gKineAll.TarRotMSwPitch[4] = cos(AngRollS); gKineAll.TarRotMSwPitch[5] = -sin(AngRollS)*cos(AngPitchS);
-			gKineAll.TarRotMSwPitch[6] = -cos(AngRollS)*sin(AngPitchS); gKineAll.TarRotMSwPitch[7] = sin(AngRollS); gKineAll.TarRotMSwPitch[8] = cos(AngRollS)*cos(AngPitchS);
+		//if (RunDynamics == 1 && TuneWhich > 0){
+		//	gKineAll.TarRotMSwPitch[0] = cos(AngPitchS); gKineAll.TarRotMSwPitch[1] = 0 ; gKineAll.TarRotMSwPitch[2] = sin(AngPitchS);
+		//	gKineAll.TarRotMSwPitch[3] = sin(AngRollS)*sin(AngPitchS); gKineAll.TarRotMSwPitch[4] = cos(AngRollS); gKineAll.TarRotMSwPitch[5] = -sin(AngRollS)*cos(AngPitchS);
+		//	gKineAll.TarRotMSwPitch[6] = -cos(AngRollS)*sin(AngPitchS); gKineAll.TarRotMSwPitch[7] = sin(AngRollS); gKineAll.TarRotMSwPitch[8] = cos(AngRollS)*cos(AngPitchS);
 
-			gKineAll.TarRotMFxPitch[0] = cos(AngPitchF); gKineAll.TarRotMFxPitch[1] = 0; gKineAll.TarRotMFxPitch[2] = sin(AngPitchF);
-			gKineAll.TarRotMFxPitch[3] = sin(AngRollF)*sin(AngPitchF); gKineAll.TarRotMFxPitch[4] = cos(AngRollF); gKineAll.TarRotMFxPitch[5] = -sin(AngRollF)*cos(AngPitchF);
-			gKineAll.TarRotMFxPitch[6] = -cos(AngRollF)*sin(AngPitchF); gKineAll.TarRotMFxPitch[7] = sin(AngRollF); gKineAll.TarRotMFxPitch[8] = cos(AngRollF)*cos(AngPitchF);
-		}
+		//	gKineAll.TarRotMFxPitch[0] = cos(AngPitchF); gKineAll.TarRotMFxPitch[1] = 0; gKineAll.TarRotMFxPitch[2] = sin(AngPitchF);
+		//	gKineAll.TarRotMFxPitch[3] = sin(AngRollF)*sin(AngPitchF); gKineAll.TarRotMFxPitch[4] = cos(AngRollF); gKineAll.TarRotMFxPitch[5] = -sin(AngRollF)*cos(AngPitchF);
+		//	gKineAll.TarRotMFxPitch[6] = -cos(AngRollF)*sin(AngPitchF); gKineAll.TarRotMFxPitch[7] = sin(AngRollF); gKineAll.TarRotMFxPitch[8] = cos(AngRollF)*cos(AngPitchF);
+		//}
 
 
-		// by 泓逸 以下 ARM IK/////////////////////////////////////////////////////
-		if(gIthIK == 0)
-		{
-			gDeltaLArmX = gKineAll.CrdAll->data[105] - gKineAll.COG[0];
-			gDeltaLArmY = gKineAll.CrdAll->data[106] - gKineAll.COG[1];
-			gDeltaLArmZ = gKineAll.CrdAll->data[107] - gKineAll.COG[2];
-			gDeltaRArmX = gKineAll.CrdAll->data[135] - gKineAll.COG[0];
-			gDeltaRArmY = gKineAll.CrdAll->data[136] - gKineAll.COG[1];
-			gDeltaRArmZ = gKineAll.CrdAll->data[137] - gKineAll.COG[2];
+		//// by 泓逸 以下 ARM IK/////////////////////////////////////////////////////
+		//if(gIthIK == 0)
+		//{
+		//	gDeltaLArmX = gKineAll.CrdAll->data[105] - gKineAll.COG[0];
+		//	gDeltaLArmY = gKineAll.CrdAll->data[106] - gKineAll.COG[1];
+		//	gDeltaLArmZ = gKineAll.CrdAll->data[107] - gKineAll.COG[2];
+		//	gDeltaRArmX = gKineAll.CrdAll->data[135] - gKineAll.COG[0];
+		//	gDeltaRArmY = gKineAll.CrdAll->data[136] - gKineAll.COG[1];
+		//	gDeltaRArmZ = gKineAll.CrdAll->data[137] - gKineAll.COG[2];
 
-			double DeltaLArmX = gKineAll.CrdAll->data[105] - gKineAll.COG[0];
-			double DeltaLArmY = gKineAll.CrdAll->data[106] - gKineAll.COG[1];
-			double DeltaLArmZ = gKineAll.CrdAll->data[107] - gKineAll.COG[2];
-			double DeltaRArmX = gKineAll.CrdAll->data[135] - gKineAll.COG[0];
-			double DeltaRArmY = gKineAll.CrdAll->data[136] - gKineAll.COG[1];
-			double DeltaRArmZ = gKineAll.CrdAll->data[137] - gKineAll.COG[2];
+		//	double DeltaLArmX = gKineAll.CrdAll->data[105] - gKineAll.COG[0];
+		//	double DeltaLArmY = gKineAll.CrdAll->data[106] - gKineAll.COG[1];
+		//	double DeltaLArmZ = gKineAll.CrdAll->data[107] - gKineAll.COG[2];
+		//	double DeltaRArmX = gKineAll.CrdAll->data[135] - gKineAll.COG[0];
+		//	double DeltaRArmY = gKineAll.CrdAll->data[136] - gKineAll.COG[1];
+		//	double DeltaRArmZ = gKineAll.CrdAll->data[137] - gKineAll.COG[2];
 
-			if(gDemoArmTrajFlag == 1)	// 1代表左轉
-			{
-				gDeltaLArmX = DeltaLArmX*cos(-gAngLArm) - DeltaLArmY*sin(-gAngLArm);
-				gDeltaLArmY = DeltaLArmX*sin(-gAngLArm) + DeltaLArmY*cos(-gAngLArm);
-				gDeltaLArmZ = DeltaLArmZ;
-				gDeltaRArmX = DeltaRArmX*cos(-gAngRArm) - DeltaRArmY*sin(-gAngRArm);
-				gDeltaRArmY = DeltaRArmX*sin(-gAngRArm) + DeltaRArmY*cos(-gAngRArm);
-				gDeltaRArmZ = DeltaRArmZ;
-			}	
-			
-			gKineAll.GenSmoothZMPShift_ZeroJerk(0,gAngChange,gStepSample,gDth1);
-			gKineAll.GenSmoothZMPShift_ZeroJerk(0,gAngChange*2,gStepSample,gDth2);
+		//	if(gDemoArmTrajFlag == 1)	// 1代表左轉
+		//	{
+		//		gDeltaLArmX = DeltaLArmX*cos(-gAngLArm) - DeltaLArmY*sin(-gAngLArm);
+		//		gDeltaLArmY = DeltaLArmX*sin(-gAngLArm) + DeltaLArmY*cos(-gAngLArm);
+		//		gDeltaLArmZ = DeltaLArmZ;
+		//		gDeltaRArmX = DeltaRArmX*cos(-gAngRArm) - DeltaRArmY*sin(-gAngRArm);
+		//		gDeltaRArmY = DeltaRArmX*sin(-gAngRArm) + DeltaRArmY*cos(-gAngRArm);
+		//		gDeltaRArmZ = DeltaRArmZ;
+		//	}	
+		//	
+		//	gKineAll.GenSmoothZMPShift_ZeroJerk(0,gAngChange,gStepSample,gDth1);
+		//	gKineAll.GenSmoothZMPShift_ZeroJerk(0,gAngChange*2,gStepSample,gDth2);
 
 			//for(int i = 0;i<60000;i++)
 			//{
@@ -3878,7 +3885,7 @@ void gArmControlThread(void)
 			//	//gRArmWalkY[i] += (gLQs.XState[i].data[0]+gKineAll.initCOG[1]);
 			//	//gRArmWalkZ[i] += gInpCOG[i];
 			//}
-		}
+		//}
 
 		////走路和提東西和推推車用的
 		//gLArmInputIK[0] = gDeltaLArmX + gLArmWalkX[gIthIK];
@@ -3889,199 +3896,200 @@ void gArmControlThread(void)
 		//gRArmInputIK[1] = gDeltaRArmY + gRArmWalkY[gIthIK];
 		//gRArmInputIK[2] = gDeltaRArmZ + gRArmWalkZ[gIthIK];
 
-		int TurnStep = (gIthIK - gIthIK%gStepSample)/gStepSample;	// 手臂轉彎用
+		//int TurnStep = (gIthIK - gIthIK%gStepSample)/gStepSample;	// 手臂轉彎用
 
 		if (gIKMethod == 0 || gIthIK == 0 )	// 解全身 或 解下半身但第一次進IK 要算第一次 gRArmInputIK gLArmInputIK
 		{
-			// by 泓逸
-			if(gDemoArmTrajFlag == 0) // 0代表直走
-			{
-				double dxRArm = gRArmWalkX[gIthIK];
-				double dyRArm = gRArmWalkY[gIthIK];
-				double dxLArm = gLArmWalkX[gIthIK];
-				double dyLArm = gLArmWalkY[gIthIK];
-				//直走時使用
-				gRArmInputIK[0] = -dyRArm*sin(gAngRArm) + dxRArm*cos(gAngRArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0] + gDeltaRArmX;
-				gRArmInputIK[1] = dxRArm*sin(gAngRArm) + dyRArm*cos(gAngRArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1] + gDeltaRArmY;
-				gRArmInputIK[2] = gDeltaRArmZ + gRArmWalkZ[gIthIK] + gInpCOG[gIthIK];
+			//// by 泓逸
+			//if(gDemoArmTrajFlag == 0) // 0代表直走
+			//{
+			//	double dxRArm = gRArmWalkX[gIthIK];
+			//	double dyRArm = gRArmWalkY[gIthIK];
+			//	double dxLArm = gLArmWalkX[gIthIK];
+			//	double dyLArm = gLArmWalkY[gIthIK];
+			//	//直走時使用
+			//	gRArmInputIK[0] = -dyRArm*sin(gAngRArm) + dxRArm*cos(gAngRArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0] + gDeltaRArmX;
+			//	gRArmInputIK[1] = dxRArm*sin(gAngRArm) + dyRArm*cos(gAngRArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1] + gDeltaRArmY;
+			//	gRArmInputIK[2] = gDeltaRArmZ + gRArmWalkZ[gIthIK] + gInpCOG[gIthIK];
 
-				gLArmInputIK[0] = -dyLArm*sin(gAngLArm) + dxLArm*cos(gAngLArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0] + gDeltaLArmX;
-				gLArmInputIK[1] = dxLArm*sin(gAngLArm) + dyLArm*cos(gAngLArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1] + gDeltaLArmY;
-				gLArmInputIK[2] = gDeltaLArmZ + gLArmWalkZ[gIthIK] + gInpCOG[gIthIK];
-			}		
-			else if(gDemoArmTrajFlag = 1)	// 1代表左轉
-			{
-				double dxRArm = gDeltaRArmX + gRArmWalkX[gIthIK];
-				double dyRArm = gDeltaRArmY + gRArmWalkY[gIthIK];
-				double dxLArm = gDeltaLArmX + gLArmWalkX[gIthIK];
-				double dyLArm = gDeltaLArmY + gLArmWalkY[gIthIK];
-				//轉彎時使用
-				if(gIthIK < gStepSample)
-				{
-					gRArmInputIK[0] = -dyRArm*sin(gAngRArm) + dxRArm*cos(gAngRArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
-					gRArmInputIK[1] = dxRArm*sin(gAngRArm) + dyRArm*cos(gAngRArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
-					gRArmInputIK[2] = gDeltaRArmZ + gRArmWalkZ[gIthIK] + gInpCOG[gIthIK];
+			//	gLArmInputIK[0] = -dyLArm*sin(gAngLArm) + dxLArm*cos(gAngLArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0] + gDeltaLArmX;
+			//	gLArmInputIK[1] = dxLArm*sin(gAngLArm) + dyLArm*cos(gAngLArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1] + gDeltaLArmY;
+			//	gLArmInputIK[2] = gDeltaLArmZ + gLArmWalkZ[gIthIK] + gInpCOG[gIthIK];
+			//}		
+			//else if(gDemoArmTrajFlag = 1)	// 1代表左轉
+			//{
+			//	double dxRArm = gDeltaRArmX + gRArmWalkX[gIthIK];
+			//	double dyRArm = gDeltaRArmY + gRArmWalkY[gIthIK];
+			//	double dxLArm = gDeltaLArmX + gLArmWalkX[gIthIK];
+			//	double dyLArm = gDeltaLArmY + gLArmWalkY[gIthIK];
+			//	//轉彎時使用
+			//	if(gIthIK < gStepSample)
+			//	{
+			//		gRArmInputIK[0] = -dyRArm*sin(gAngRArm) + dxRArm*cos(gAngRArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
+			//		gRArmInputIK[1] = dxRArm*sin(gAngRArm) + dyRArm*cos(gAngRArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
+			//		gRArmInputIK[2] = gDeltaRArmZ + gRArmWalkZ[gIthIK] + gInpCOG[gIthIK];
 
-					gLArmInputIK[0] = -dyLArm*sin(gAngLArm) + dxLArm*cos(gAngLArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
-					gLArmInputIK[1] = dxLArm*sin(gAngLArm) + dyLArm*cos(gAngLArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
-					gLArmInputIK[2] = gDeltaLArmZ + gLArmWalkZ[gIthIK] + gInpCOG[gIthIK];
-				}
-				else if(gIthIK >= gStepSample && gIthIK < gStepSample*2)
-				{
-					gAngRArm = gDth1[gIthIK-gStepSample] + gLastAngRArm;
-					gRArmInputIK[0] = -dyRArm*sin(gAngRArm) + dxRArm*cos(gAngRArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
-					gRArmInputIK[1] = dxRArm*sin(gAngRArm) + dyRArm*cos(gAngRArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
-					gRArmInputIK[2] = gDeltaRArmZ + gRArmWalkZ[gIthIK] + gInpCOG[gIthIK];
+			//		gLArmInputIK[0] = -dyLArm*sin(gAngLArm) + dxLArm*cos(gAngLArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
+			//		gLArmInputIK[1] = dxLArm*sin(gAngLArm) + dyLArm*cos(gAngLArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
+			//		gLArmInputIK[2] = gDeltaLArmZ + gLArmWalkZ[gIthIK] + gInpCOG[gIthIK];
+			//	}
+			//	else if(gIthIK >= gStepSample && gIthIK < gStepSample*2)
+			//	{
+			//		gAngRArm = gDth1[gIthIK-gStepSample] + gLastAngRArm;
+			//		gRArmInputIK[0] = -dyRArm*sin(gAngRArm) + dxRArm*cos(gAngRArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
+			//		gRArmInputIK[1] = dxRArm*sin(gAngRArm) + dyRArm*cos(gAngRArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
+			//		gRArmInputIK[2] = gDeltaRArmZ + gRArmWalkZ[gIthIK] + gInpCOG[gIthIK];
 
-					gLArmInputIK[0] = -dyLArm*sin(gAngLArm) + dxLArm*cos(gAngLArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
-					gLArmInputIK[1] = dxLArm*sin(gAngLArm) + dyLArm*cos(gAngLArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
-					gLArmInputIK[2] = gDeltaLArmZ + gLArmWalkZ[gIthIK] + gInpCOG[gIthIK];
-				}
-				else if(gIthIK >= gStepSample*2 && gIthIK < gStepSample*(gNumOfStep-4))
-				{
-					if(gTurnDirection == 0)
-					{
-						if(gKineAll.selSupport[TurnStep] == 0)//左腳support
-						{
-							gAngRArm = gAngChange * (TurnStep - 1) + gLastAngRArm;
-							gAngLArm = gAngChange * (TurnStep - 2) + gDth2[gIthIK-gStepSample*TurnStep] + gLastAngLArm;
-							gRArmInputIK[0] = -dyRArm*sin(gAngRArm) + dxRArm*cos(gAngRArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
-							gRArmInputIK[1] = dxRArm*sin(gAngRArm) + dyRArm*cos(gAngRArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
-							gRArmInputIK[2] = gDeltaRArmZ + gRArmWalkZ[gIthIK] + gInpCOG[gIthIK];
+			//		gLArmInputIK[0] = -dyLArm*sin(gAngLArm) + dxLArm*cos(gAngLArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
+			//		gLArmInputIK[1] = dxLArm*sin(gAngLArm) + dyLArm*cos(gAngLArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
+			//		gLArmInputIK[2] = gDeltaLArmZ + gLArmWalkZ[gIthIK] + gInpCOG[gIthIK];
+			//	}
+			//	else if(gIthIK >= gStepSample*2 && gIthIK < gStepSample*(gNumOfStep-4))
+			//	{
+			//		if(gTurnDirection == 0)
+			//		{
+			//			if(gKineAll.selSupport[TurnStep] == 0)//左腳support
+			//			{
+			//				gAngRArm = gAngChange * (TurnStep - 1) + gLastAngRArm;
+			//				gAngLArm = gAngChange * (TurnStep - 2) + gDth2[gIthIK-gStepSample*TurnStep] + gLastAngLArm;
+			//				gRArmInputIK[0] = -dyRArm*sin(gAngRArm) + dxRArm*cos(gAngRArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
+			//				gRArmInputIK[1] = dxRArm*sin(gAngRArm) + dyRArm*cos(gAngRArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
+			//				gRArmInputIK[2] = gDeltaRArmZ + gRArmWalkZ[gIthIK] + gInpCOG[gIthIK];
 
-							gLArmInputIK[0] = -dyLArm*sin(gAngLArm) + dxLArm*cos(gAngLArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
-							gLArmInputIK[1] = dxLArm*sin(gAngLArm) + dyLArm*cos(gAngLArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
-							gLArmInputIK[2] = gDeltaLArmZ + gLArmWalkZ[gIthIK] + gInpCOG[gIthIK];
+			//				gLArmInputIK[0] = -dyLArm*sin(gAngLArm) + dxLArm*cos(gAngLArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
+			//				gLArmInputIK[1] = dxLArm*sin(gAngLArm) + dyLArm*cos(gAngLArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
+			//				gLArmInputIK[2] = gDeltaLArmZ + gLArmWalkZ[gIthIK] + gInpCOG[gIthIK];
 
-						}
-						else//右腳support
-						{
-							gAngRArm = gAngChange * (TurnStep - 2) + gDth2[gIthIK-gStepSample*TurnStep] + gLastAngRArm;
-							gAngLArm = gAngChange * (TurnStep - 1) + gLastAngLArm;
-							gRArmInputIK[0] = -dyRArm*sin(gAngRArm) + dxRArm*cos(gAngRArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
-							gRArmInputIK[1] = dxRArm*sin(gAngRArm) + dyRArm*cos(gAngRArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
-							gRArmInputIK[2] = gDeltaRArmZ + gRArmWalkZ[gIthIK] + gInpCOG[gIthIK];
+			//			}
+			//			else//右腳support
+			//			{
+			//				gAngRArm = gAngChange * (TurnStep - 2) + gDth2[gIthIK-gStepSample*TurnStep] + gLastAngRArm;
+			//				gAngLArm = gAngChange * (TurnStep - 1) + gLastAngLArm;
+			//				gRArmInputIK[0] = -dyRArm*sin(gAngRArm) + dxRArm*cos(gAngRArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
+			//				gRArmInputIK[1] = dxRArm*sin(gAngRArm) + dyRArm*cos(gAngRArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
+			//				gRArmInputIK[2] = gDeltaRArmZ + gRArmWalkZ[gIthIK] + gInpCOG[gIthIK];
 
-							gLArmInputIK[0] = -dyLArm*sin(gAngLArm) + dxLArm*cos(gAngLArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
-							gLArmInputIK[1] = dxLArm*sin(gAngLArm) + dyLArm*cos(gAngLArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
-							gLArmInputIK[2] = gDeltaLArmZ + gLArmWalkZ[gIthIK] + gInpCOG[gIthIK];
-						}
-					}
-					else
-					{
-						if(gKineAll.selSupport[TurnStep] == 1)//左腳support
-						{
-							gAngRArm = gAngChange * (TurnStep - 1) + gLastAngRArm;
-							gAngLArm = gAngChange * (TurnStep - 2) + gDth2[gIthIK-gStepSample*TurnStep] + gLastAngLArm;
-							gRArmInputIK[0] = -dyRArm*sin(gAngRArm) + dxRArm*cos(gAngRArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
-							gRArmInputIK[1] = dxRArm*sin(gAngRArm) + dyRArm*cos(gAngRArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
-							gRArmInputIK[2] = gDeltaRArmZ + gRArmWalkZ[gIthIK] + gInpCOG[gIthIK];
+			//				gLArmInputIK[0] = -dyLArm*sin(gAngLArm) + dxLArm*cos(gAngLArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
+			//				gLArmInputIK[1] = dxLArm*sin(gAngLArm) + dyLArm*cos(gAngLArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
+			//				gLArmInputIK[2] = gDeltaLArmZ + gLArmWalkZ[gIthIK] + gInpCOG[gIthIK];
+			//			}
+			//		}
+			//		else
+			//		{
+			//			if(gKineAll.selSupport[TurnStep] == 1)//左腳support
+			//			{
+			//				gAngRArm = gAngChange * (TurnStep - 1) + gLastAngRArm;
+			//				gAngLArm = gAngChange * (TurnStep - 2) + gDth2[gIthIK-gStepSample*TurnStep] + gLastAngLArm;
+			//				gRArmInputIK[0] = -dyRArm*sin(gAngRArm) + dxRArm*cos(gAngRArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
+			//				gRArmInputIK[1] = dxRArm*sin(gAngRArm) + dyRArm*cos(gAngRArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
+			//				gRArmInputIK[2] = gDeltaRArmZ + gRArmWalkZ[gIthIK] + gInpCOG[gIthIK];
 
-							gLArmInputIK[0] = -dyLArm*sin(gAngLArm) + dxLArm*cos(gAngLArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
-							gLArmInputIK[1] = dxLArm*sin(gAngLArm) + dyLArm*cos(gAngLArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
-							gLArmInputIK[2] = gDeltaLArmZ + gLArmWalkZ[gIthIK] + gInpCOG[gIthIK];
+			//				gLArmInputIK[0] = -dyLArm*sin(gAngLArm) + dxLArm*cos(gAngLArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
+			//				gLArmInputIK[1] = dxLArm*sin(gAngLArm) + dyLArm*cos(gAngLArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
+			//				gLArmInputIK[2] = gDeltaLArmZ + gLArmWalkZ[gIthIK] + gInpCOG[gIthIK];
 
-						}
-						else//右腳support
-						{
-							gAngRArm = gAngChange * (TurnStep - 2) + gDth2[gIthIK-gStepSample*TurnStep] + gLastAngRArm;
-							gAngLArm = gAngChange * (TurnStep - 1) + gLastAngLArm;
-							gRArmInputIK[0] = -dyRArm*sin(gAngRArm) + dxRArm*cos(gAngRArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
-							gRArmInputIK[1] = dxRArm*sin(gAngRArm) + dyRArm*cos(gAngRArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
-							gRArmInputIK[2] = gDeltaRArmZ + gRArmWalkZ[gIthIK] + gInpCOG[gIthIK];
+			//			}
+			//			else//右腳support
+			//			{
+			//				gAngRArm = gAngChange * (TurnStep - 2) + gDth2[gIthIK-gStepSample*TurnStep] + gLastAngRArm;
+			//				gAngLArm = gAngChange * (TurnStep - 1) + gLastAngLArm;
+			//				gRArmInputIK[0] = -dyRArm*sin(gAngRArm) + dxRArm*cos(gAngRArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
+			//				gRArmInputIK[1] = dxRArm*sin(gAngRArm) + dyRArm*cos(gAngRArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
+			//				gRArmInputIK[2] = gDeltaRArmZ + gRArmWalkZ[gIthIK] + gInpCOG[gIthIK];
 
-							gLArmInputIK[0] = -dyLArm*sin(gAngLArm) + dxLArm*cos(gAngLArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
-							gLArmInputIK[1] = dxLArm*sin(gAngLArm) + dyLArm*cos(gAngLArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
-							gLArmInputIK[2] = gDeltaLArmZ + gLArmWalkZ[gIthIK] + gInpCOG[gIthIK];
-						}				
-					}
-				}
-				else
-				{
-					gRArmInputIK[0] = -dyRArm*sin(gAngRArm) + dxRArm*cos(gAngRArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
-					gRArmInputIK[1] = dxRArm*sin(gAngRArm) + dyRArm*cos(gAngRArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
-					gRArmInputIK[2] = gDeltaRArmZ + gRArmWalkZ[gIthIK] + gInpCOG[gIthIK];
+			//				gLArmInputIK[0] = -dyLArm*sin(gAngLArm) + dxLArm*cos(gAngLArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
+			//				gLArmInputIK[1] = dxLArm*sin(gAngLArm) + dyLArm*cos(gAngLArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
+			//				gLArmInputIK[2] = gDeltaLArmZ + gLArmWalkZ[gIthIK] + gInpCOG[gIthIK];
+			//			}				
+			//		}
+			//	}
+			//	else
+			//	{
+			//		gRArmInputIK[0] = -dyRArm*sin(gAngRArm) + dxRArm*cos(gAngRArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
+			//		gRArmInputIK[1] = dxRArm*sin(gAngRArm) + dyRArm*cos(gAngRArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
+			//		gRArmInputIK[2] = gDeltaRArmZ + gRArmWalkZ[gIthIK] + gInpCOG[gIthIK];
 
-					gLArmInputIK[0] = -dyLArm*sin(gAngLArm) + dxLArm*cos(gAngLArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
-					gLArmInputIK[1] = dxLArm*sin(gAngLArm) + dyLArm*cos(gAngLArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
-					gLArmInputIK[2] = gDeltaLArmZ + gLArmWalkZ[gIthIK] + gInpCOG[gIthIK];
-				}
-			}
+			//		gLArmInputIK[0] = -dyLArm*sin(gAngLArm) + dxLArm*cos(gAngLArm) + gLQs.YState[gIthIK].data[0] + gKineAll.initCOG[0];
+			//		gLArmInputIK[1] = dxLArm*sin(gAngLArm) + dyLArm*cos(gAngLArm) + gLQs.XState[gIthIK].data[0] + gKineAll.initCOG[1];
+			//		gLArmInputIK[2] = gDeltaLArmZ + gLArmWalkZ[gIthIK] + gInpCOG[gIthIK];
+			//	}
+			//}
 
-			for(int i = 0;i<9;i ++)
-			{
-				gKineAll.TarRotMRA[i] = gRArmWalkRot[i+gIthIK*9];
-				gKineAll.TarRotMLA[i] = gLArmWalkRot[i+gIthIK*9];
-			}
+			//for(int i = 0;i<9;i ++)
+			//{
+			//	gKineAll.TarRotMRA[i] = gRArmWalkRot[i+gIthIK*9];
+			//	gKineAll.TarRotMLA[i] = gLArmWalkRot[i+gIthIK*9];
+			//}
 
-			gKineAll.TarRotMRA[0] = gRArmWalkRot[0+gIthIK*9]*cos(AngL) - gRArmWalkRot[3+gIthIK*9]*sin(AngL);
-			gKineAll.TarRotMRA[1] = gRArmWalkRot[1+gIthIK*9]*cos(AngL) - gRArmWalkRot[4+gIthIK*9]*sin(AngL);
-			gKineAll.TarRotMRA[2] = gRArmWalkRot[2+gIthIK*9]*cos(AngL) - gRArmWalkRot[5+gIthIK*9]*sin(AngL);
-			gKineAll.TarRotMRA[3] = gRArmWalkRot[0+gIthIK*9]*sin(AngL) + gRArmWalkRot[3+gIthIK*9]*cos(AngL);
-			gKineAll.TarRotMRA[4] = gRArmWalkRot[1+gIthIK*9]*sin(AngL) + gRArmWalkRot[4+gIthIK*9]*cos(AngL);
-			gKineAll.TarRotMRA[5] = gRArmWalkRot[2+gIthIK*9]*sin(AngL) + gRArmWalkRot[5+gIthIK*9]*cos(AngL);
-			gKineAll.TarRotMRA[6] = gRArmWalkRot[6+gIthIK*9];
-			gKineAll.TarRotMRA[7] = gRArmWalkRot[7+gIthIK*9];
-			gKineAll.TarRotMRA[8] = gRArmWalkRot[8+gIthIK*9];
+			//gKineAll.TarRotMRA[0] = gRArmWalkRot[0+gIthIK*9]*cos(AngL) - gRArmWalkRot[3+gIthIK*9]*sin(AngL);
+			//gKineAll.TarRotMRA[1] = gRArmWalkRot[1+gIthIK*9]*cos(AngL) - gRArmWalkRot[4+gIthIK*9]*sin(AngL);
+			//gKineAll.TarRotMRA[2] = gRArmWalkRot[2+gIthIK*9]*cos(AngL) - gRArmWalkRot[5+gIthIK*9]*sin(AngL);
+			//gKineAll.TarRotMRA[3] = gRArmWalkRot[0+gIthIK*9]*sin(AngL) + gRArmWalkRot[3+gIthIK*9]*cos(AngL);
+			//gKineAll.TarRotMRA[4] = gRArmWalkRot[1+gIthIK*9]*sin(AngL) + gRArmWalkRot[4+gIthIK*9]*cos(AngL);
+			//gKineAll.TarRotMRA[5] = gRArmWalkRot[2+gIthIK*9]*sin(AngL) + gRArmWalkRot[5+gIthIK*9]*cos(AngL);
+			//gKineAll.TarRotMRA[6] = gRArmWalkRot[6+gIthIK*9];
+			//gKineAll.TarRotMRA[7] = gRArmWalkRot[7+gIthIK*9];
+			//gKineAll.TarRotMRA[8] = gRArmWalkRot[8+gIthIK*9];
 
-			gKineAll.TarRotMLA[0] = gLArmWalkRot[0+gIthIK*9]*cos(AngR) - gLArmWalkRot[3+gIthIK*9]*sin(AngR);
-			gKineAll.TarRotMLA[1] = gLArmWalkRot[1+gIthIK*9]*cos(AngR) - gLArmWalkRot[4+gIthIK*9]*sin(AngR);
-			gKineAll.TarRotMLA[2] = gLArmWalkRot[2+gIthIK*9]*cos(AngR) - gLArmWalkRot[5+gIthIK*9]*sin(AngR);
-			gKineAll.TarRotMLA[3] = gLArmWalkRot[0+gIthIK*9]*sin(AngR) + gLArmWalkRot[3+gIthIK*9]*cos(AngR);
-			gKineAll.TarRotMLA[4] = gLArmWalkRot[1+gIthIK*9]*sin(AngR) + gLArmWalkRot[4+gIthIK*9]*cos(AngR);
-			gKineAll.TarRotMLA[5] = gLArmWalkRot[2+gIthIK*9]*sin(AngR) + gLArmWalkRot[5+gIthIK*9]*cos(AngR);
-			gKineAll.TarRotMLA[6] = gLArmWalkRot[6+gIthIK*9];
-			gKineAll.TarRotMLA[7] = gLArmWalkRot[7+gIthIK*9];
-			gKineAll.TarRotMLA[8] = gLArmWalkRot[8+gIthIK*9];
+			//gKineAll.TarRotMLA[0] = gLArmWalkRot[0+gIthIK*9]*cos(AngR) - gLArmWalkRot[3+gIthIK*9]*sin(AngR);
+			//gKineAll.TarRotMLA[1] = gLArmWalkRot[1+gIthIK*9]*cos(AngR) - gLArmWalkRot[4+gIthIK*9]*sin(AngR);
+			//gKineAll.TarRotMLA[2] = gLArmWalkRot[2+gIthIK*9]*cos(AngR) - gLArmWalkRot[5+gIthIK*9]*sin(AngR);
+			//gKineAll.TarRotMLA[3] = gLArmWalkRot[0+gIthIK*9]*sin(AngR) + gLArmWalkRot[3+gIthIK*9]*cos(AngR);
+			//gKineAll.TarRotMLA[4] = gLArmWalkRot[1+gIthIK*9]*sin(AngR) + gLArmWalkRot[4+gIthIK*9]*cos(AngR);
+			//gKineAll.TarRotMLA[5] = gLArmWalkRot[2+gIthIK*9]*sin(AngR) + gLArmWalkRot[5+gIthIK*9]*cos(AngR);
+			//gKineAll.TarRotMLA[6] = gLArmWalkRot[6+gIthIK*9];
+			//gKineAll.TarRotMLA[7] = gLArmWalkRot[7+gIthIK*9];
+			//gKineAll.TarRotMLA[8] = gLArmWalkRot[8+gIthIK*9];
 
-			////轉彎時的手臂揮動用的
-			//gKineAll.TarRotMRA[0] = gKineAll.TarRotMRA[0]*cos(AngL) - gKineAll.TarRotMRA[3]*sin(AngL);
-			//gKineAll.TarRotMRA[1] = gKineAll.TarRotMRA[1]*cos(AngL) - gKineAll.TarRotMRA[4]*sin(AngL);
-			//gKineAll.TarRotMRA[2] = gKineAll.TarRotMRA[2]*cos(AngL) - gKineAll.TarRotMRA[5]*sin(AngL);
-			//gKineAll.TarRotMRA[3] = gKineAll.TarRotMRA[0]*sin(AngL) + gKineAll.TarRotMRA[3]*cos(AngL);
-			//gKineAll.TarRotMRA[4] = gKineAll.TarRotMRA[1]*sin(AngL) + gKineAll.TarRotMRA[4]*cos(AngL);
-			//gKineAll.TarRotMRA[5] = gKineAll.TarRotMRA[2]*sin(AngL) + gKineAll.TarRotMRA[5]*cos(AngL);
-			//gKineAll.TarRotMRA[6] = gKineAll.TarRotMRA[6];
-			//gKineAll.TarRotMRA[7] = gKineAll.TarRotMRA[7];
-			//gKineAll.TarRotMRA[8] = gKineAll.TarRotMRA[8];
+			//////轉彎時的手臂揮動用的
+			////gKineAll.TarRotMRA[0] = gKineAll.TarRotMRA[0]*cos(AngL) - gKineAll.TarRotMRA[3]*sin(AngL);
+			////gKineAll.TarRotMRA[1] = gKineAll.TarRotMRA[1]*cos(AngL) - gKineAll.TarRotMRA[4]*sin(AngL);
+			////gKineAll.TarRotMRA[2] = gKineAll.TarRotMRA[2]*cos(AngL) - gKineAll.TarRotMRA[5]*sin(AngL);
+			////gKineAll.TarRotMRA[3] = gKineAll.TarRotMRA[0]*sin(AngL) + gKineAll.TarRotMRA[3]*cos(AngL);
+			////gKineAll.TarRotMRA[4] = gKineAll.TarRotMRA[1]*sin(AngL) + gKineAll.TarRotMRA[4]*cos(AngL);
+			////gKineAll.TarRotMRA[5] = gKineAll.TarRotMRA[2]*sin(AngL) + gKineAll.TarRotMRA[5]*cos(AngL);
+			////gKineAll.TarRotMRA[6] = gKineAll.TarRotMRA[6];
+			////gKineAll.TarRotMRA[7] = gKineAll.TarRotMRA[7];
+			////gKineAll.TarRotMRA[8] = gKineAll.TarRotMRA[8];
 
-			//gKineAll.TarRotMLA[0] = gKineAll.TarRotMLA[0]*cos(AngR) - gKineAll.TarRotMLA[3]*sin(AngR);
-			//gKineAll.TarRotMLA[1] = gKineAll.TarRotMLA[1]*cos(AngR) - gKineAll.TarRotMLA[4]*sin(AngR);
-			//gKineAll.TarRotMLA[2] = gKineAll.TarRotMLA[2]*cos(AngR) - gKineAll.TarRotMLA[5]*sin(AngR);
-			//gKineAll.TarRotMLA[3] = gKineAll.TarRotMLA[0]*sin(AngR) + gKineAll.TarRotMLA[3]*cos(AngR);
-			//gKineAll.TarRotMLA[4] = gKineAll.TarRotMLA[1]*sin(AngR) + gKineAll.TarRotMLA[4]*cos(AngR);
-			//gKineAll.TarRotMLA[5] = gKineAll.TarRotMLA[2]*sin(AngR) + gKineAll.TarRotMLA[5]*cos(AngR);
-			//gKineAll.TarRotMLA[6] = gKineAll.TarRotMLA[6];
-			//gKineAll.TarRotMLA[7] = gKineAll.TarRotMLA[7];
-			//gKineAll.TarRotMLA[8] = gKineAll.TarRotMLA[8];
+			////gKineAll.TarRotMLA[0] = gKineAll.TarRotMLA[0]*cos(AngR) - gKineAll.TarRotMLA[3]*sin(AngR);
+			////gKineAll.TarRotMLA[1] = gKineAll.TarRotMLA[1]*cos(AngR) - gKineAll.TarRotMLA[4]*sin(AngR);
+			////gKineAll.TarRotMLA[2] = gKineAll.TarRotMLA[2]*cos(AngR) - gKineAll.TarRotMLA[5]*sin(AngR);
+			////gKineAll.TarRotMLA[3] = gKineAll.TarRotMLA[0]*sin(AngR) + gKineAll.TarRotMLA[3]*cos(AngR);
+			////gKineAll.TarRotMLA[4] = gKineAll.TarRotMLA[1]*sin(AngR) + gKineAll.TarRotMLA[4]*cos(AngR);
+			////gKineAll.TarRotMLA[5] = gKineAll.TarRotMLA[2]*sin(AngR) + gKineAll.TarRotMLA[5]*cos(AngR);
+			////gKineAll.TarRotMLA[6] = gKineAll.TarRotMLA[6];
+			////gKineAll.TarRotMLA[7] = gKineAll.TarRotMLA[7];
+			////gKineAll.TarRotMLA[8] = gKineAll.TarRotMLA[8];
 		
-			//gKineAll.TarRotMRA[0] = 0;
-			//gKineAll.TarRotMRA[1] = cos(AngL);
-			//gKineAll.TarRotMRA[2] = sin(AngL);
-			//gKineAll.TarRotMRA[3] = 0;
-			//gKineAll.TarRotMRA[4] = sin(AngL);
-			//gKineAll.TarRotMRA[5] = -cos(AngL);
-			//gKineAll.TarRotMRA[6] = -1;
-			//gKineAll.TarRotMRA[7] = 0;
-			//gKineAll.TarRotMRA[8] = 0;
+			////gKineAll.TarRotMRA[0] = 0;
+			////gKineAll.TarRotMRA[1] = cos(AngL);
+			////gKineAll.TarRotMRA[2] = sin(AngL);
+			////gKineAll.TarRotMRA[3] = 0;
+			////gKineAll.TarRotMRA[4] = sin(AngL);
+			////gKineAll.TarRotMRA[5] = -cos(AngL);
+			////gKineAll.TarRotMRA[6] = -1;
+			////gKineAll.TarRotMRA[7] = 0;
+			////gKineAll.TarRotMRA[8] = 0;
 
-			//gKineAll.TarRotMLA[0] = 0;
-			//gKineAll.TarRotMLA[1] = cos(AngR);
-			//gKineAll.TarRotMLA[2] = sin(AngR);
-			//gKineAll.TarRotMLA[3] = 0;
-			//gKineAll.TarRotMLA[4] = sin(AngR);
-			//gKineAll.TarRotMLA[5] = -cos(AngR);
-			//gKineAll.TarRotMLA[6] = -1;
-			//gKineAll.TarRotMLA[7] = 0;
-			//gKineAll.TarRotMLA[8] = 0;
+			////gKineAll.TarRotMLA[0] = 0;
+			////gKineAll.TarRotMLA[1] = cos(AngR);
+			////gKineAll.TarRotMLA[2] = sin(AngR);
+			////gKineAll.TarRotMLA[3] = 0;
+			////gKineAll.TarRotMLA[4] = sin(AngR);
+			////gKineAll.TarRotMLA[5] = -cos(AngR);
+			////gKineAll.TarRotMLA[6] = -1;
+			////gKineAll.TarRotMLA[7] = 0;
+			////gKineAll.TarRotMLA[8] = 0;
 
-			//printf("gIthIK = %d\n",gIthIK);
+			////printf("gIthIK = %d\n",gIthIK);
 		} 			
 		else // 只解腳 gIKMethod == 1 而且IK已經initial 結束
 		{
-			//if (gKineAll.FlagArmAlone == 1)	// 下半身解IK 上半身直接輸入OfflineData 不用COG補償
+			if (gKineAll.FlagArmAlone == 1)	// 下半身解IK 上半身直接輸入OfflineData 不用COG補償
 			{
-				for(int i = 0;i<6;i++){
+				for(int i = 0;i<6;i++)
+				{
 				/////!!! Flag
 					//gKineAll.FKLArm->theta[i+4] = gLArmOfflineTraj[gIthIK*6 + i];
 					//gKineAll.FKRArm->theta[i+4] = gRArmOfflineTraj[gIthIK*6 + i];
@@ -4110,7 +4118,7 @@ void gArmControlThread(void)
 			//		}
 			//	}			
 			//}
-		}
+		 }
 		// by 泓逸 以上 ARM IK/////////////////////////////////////////////////////
 
 		//printf("gIthIK = %d\n",gIthIK);
@@ -4561,7 +4569,45 @@ void gArmControlThread(void)
 						//20121214doratom//		
 					}
 				}
+
+
+
 			}
+
+
+
+			//20160506 first step rotation test go go go
+				if (gKineAll.stepIndex == 1)
+				{
+						
+					gKineAll.GenSmoothZMPShift_ZeroJerk(0,-0.3,gStepSample,gAngLPBuf);
+	
+				}
+				else if (gKineAll.stepIndex == 2)
+				{
+						
+					gKineAll.GenSmoothZMPShift_ZeroJerk(-0.3,-0.3,gStepSample,gAngLPBuf);
+	
+				}
+				else if (gKineAll.stepIndex == 3)
+				{
+						
+					gKineAll.GenSmoothZMPShift_ZeroJerk(-0.3,0,gStepSample,gAngLPBuf);
+	
+				}
+				//else if(gKineAll.stepIndex == 4)
+				//{
+				//	gKineAll.GenSmoothZMPShift_ZeroJerk(0.5,0,gStepSample,gAngLPBuf);
+				//}
+				else
+				{
+					for(int i = 0; i < gStepSample ;++i)
+					{
+						gAngLPBuf[i] = 0;
+					}
+				}
+			//20160506 first step rotation test end
+
 
 			// 判斷下一格是否要換腳 要的話就進入進行資料記憶以及之後切換腳的切換準備
 			// 記下所有換腳時的資訊 很重要 不然機器人不知道接下來固定腳的位置與角度
@@ -4603,7 +4649,7 @@ void gArmControlThread(void)
 			gRAngZWorld = AngR; // 記下世界中的z方向角度 在連接軌跡還有軌跡生成的時候要用
 
 			//DSPFlag = 1;	// WZ for AKHS
-		}
+		}//end of generation of next step
 
 		gIthIK += 1;	// 不是蹲姿IK 才可以++ 0528WZ
 
@@ -7681,42 +7727,64 @@ void gInitWalkStraight(int StepInput, double StepLength)
 
 	gFstpY[0] = 0;
 	gFstpY[1] = distance2L/2.0*sin(gRRotAngZ[2]);
-	gFstpY[2] = -distance2L/2.0*sin(gLRotAngZ[0])+StrideY/2.0;
+	gFstpY[2] = -distance2L/2.0*sin(gLRotAngZ[0])+StrideY/2.0;//half step length
+	//0 0 80 160 240
 	//gFstpY[0] = 0;
 	//gFstpY[1] = 0;
-	//gFstpY[2] = 50;
+	//gFstpY[2] = 100;
 	//gFstpY[3] = 260;
 	//	gFstpY[4] = 310;
 	//		gFstpY[5] = 520;
 	//			gFstpY[6] = 570;
 	//				gFstpY[7] = 570;
-	for (int i = 1 ; i < gNumOfStep ; i++)
-	{
-		gFstpY[i*2+1] = gFstpY[i*2-1]+StrideY;
-		gFstpY[i*2+2] = gFstpY[i*2]+StrideY;
-	}
+	//for (int i = 1 ; i < gNumOfStep ; i++)
+	//{
+	//	gFstpY[i*2+1] = gFstpY[i*2-1]+StrideY;
+	//	gFstpY[i*2+2] = gFstpY[i*2]+StrideY;
+	//}
 
-	if (gKineAll.selSupport[gNumOfStep-4] == 0) // right support
-	{
-		gFstpY[gNumOfStep-4] = gFstpY[gNumOfStep-5] - 160*sin((gLRotAngZ[gNumOfStep-4]+gRRotAngZ[gNumOfStep-4])/2.0);
-	}
-	else
-	{
-		gFstpY[gNumOfStep-4] = gFstpY[gNumOfStep-5] + 160*sin((gLRotAngZ[gNumOfStep-4]+gRRotAngZ[gNumOfStep-4])/2.0);
-	}
+	//gFstpY[gNumOfStep-4] = gFstpY[gNumOfStep-5];
+	//if (gKineAll.selSupport[gNumOfStep-4] == 0) // right support
+	//{
+	//	gFstpY[gNumOfStep-4] = gFstpY[gNumOfStep-5] - 160*sin((gLRotAngZ[gNumOfStep-4]+gRRotAngZ[gNumOfStep-4])/2.0);
+	//}
+	//else
+	//{
+	//	gFstpY[gNumOfStep-4] = gFstpY[gNumOfStep-5] + 160*sin((gLRotAngZ[gNumOfStep-4]+gRRotAngZ[gNumOfStep-4])/2.0);
+	//}
 
-	gFstpY[gNumOfStep-4] = (gFstpY[gNumOfStep-4]+gFstpY[gNumOfStep-5])/2.0;
+	//gFstpY[gNumOfStep-4] = (gFstpY[gNumOfStep-4]+gFstpY[gNumOfStep-5])/2.0;
 
-	for (int i = gNumOfStep - 3 ; i < gNumOfStep+5 ; i++)
-	{
-		gFstpY[i] = gFstpY[gNumOfStep-4];
-	}
+	//for (int i = gNumOfStep - 3 ; i < gNumOfStep+5 ; i++)
+	//{
+	//	gFstpY[i] = gFstpY[gNumOfStep-4];
+	//}
 
 	for (int i = 0 ; i < gNumOfStep+25 ; i++)
 		gGroundHeight[i] = 0.0;
 
+	//20160506 first step rotation test go go go
+	gGroundHeight[2]=20.0;
+
+	gFstpY[0] = 0;
+	gFstpY[1] = 0;
+	gFstpY[2] = 150;
+	gFstpY[3] = 300;
+	gFstpY[4] = 430;
+	gFstpY[5] = 430;
+	gFstpY[6] = 430;
+	gFstpY[7] = 430;
+	//gFstpY[8] = 430;
+	//gFstpY[9] = 430;
+	//gFstpY[10] = 430;
+	//gFstpY[11] = 430;
+	//gFstpY[12] = 430;
+	//gFstpY[13] = 430;
+
+	//20160506 first step rotation test end
+
 	//***************20141022變步距簡單測試
-	gFstpY[3]=220;
+	//gFstpY[3]=220;
 
 	////test 160505
 	//	gFstpY[0] = 0;
@@ -7727,7 +7795,7 @@ void gInitWalkStraight(int StepInput, double StepLength)
 	//gFstpY[5] = 500;
 	//gFstpY[6] = 500;
 	//gFstpY[7] = 500;
-	//
+	
 
 
 	//for (int i = gNumOfStep - 3 ; i < gNumOfStep+5 ; i++)
@@ -7751,6 +7819,8 @@ void gInitWalkStraight(int StepInput, double StepLength)
 
 	//for (int i = gNumOfStep-4 ; i < gNumOfStep+25 ; i++)
 	//	gGroundHeight[i] = gGroundHeight[i-1];
+
+
 }
 
 
