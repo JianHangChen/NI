@@ -1298,8 +1298,8 @@ void CRobotAllDlg::OnBnClickedButton1() // the button "Start"
 		if (gFlagSimulation == RealExp && gFlagReadForceSensor==0)	
 		{
 		  #if TwinCAT_Mode
-		  printf("Wait 5 seconds for TwinCAT...\n");
-		  Sleep(5000);		  
+			/*		  printf("Wait 5 seconds for TwinCAT...\n");
+			Sleep(5000);	*/	  
 		  TCAT=new TwinCAT_COM();// open epos
 		  gDeleteLogFile();
 		  #else

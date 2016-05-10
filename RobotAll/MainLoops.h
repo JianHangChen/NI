@@ -31,7 +31,7 @@ Note: None
 #include "ConstIO.h"
 #include "glut.h"
 
-#define TwinCAT_Mode 0	//關掉此項 可以離線測試 不須與TwinCAT溝通 
+#define TwinCAT_Mode 1	//關掉此項 可以離線測試 不須與TwinCAT溝通 
 //但注意需要把 方案總管-RobotAll(右鍵)-屬性-連結器-輸入-其他相依性 刪掉TCatIoDrv.lib 才可以離線測試
 
 #if TwinCAT_Mode

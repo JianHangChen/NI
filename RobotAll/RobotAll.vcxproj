@@ -51,13 +51,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Program Files\Microsoft Speech SDK 5.1\Include;C:\Program Files\FMOD SoundSystem\FMOD Programmers API Win32;C:\Program Files\CLAPACK-3.1.1\INCLUDE;C:\Program Files\CLAPACK-3.1.1\LIB\Win32;.\;./;OpenGL;Pattern Generator;USB &amp; CAN protocol;IMU;COGestimate</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files\Microsoft Speech SDK 5.1\Include;C:\Program Files\FMOD SoundSystem\FMOD Programmers API Win32;C:\Program Files\CLAPACK-3.1.1\INCLUDE;C:\Program Files\CLAPACK-3.1.1\LIB\Win32;.\;./;OpenGL;Pattern Generator;USB &amp; CAN protocol;IMU;COGestimate;C:\TwinCAT\IO Api</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Program Files\CLAPACK-3.1.1\LIB\Win32;OpenGL;C:\Program Files\FMOD SoundSystem\FMOD Programmers API Win32\api\lib;C:\Program Files\Microsoft Speech SDK 5.1\Lib\i386;IMU</AdditionalLibraryDirectories>
-      <AdditionalDependencies>clapack.lib;libf2c.lib;blas.lib;kernel32.lib;WINMM.lib;fmodex_vc.lib;sapi.lib;user32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Program Files\CLAPACK-3.1.1\LIB\Win32;OpenGL;C:\Program Files\FMOD SoundSystem\FMOD Programmers API Win32\api\lib;C:\Program Files\Microsoft Speech SDK 5.1\Lib\i386;IMU;C:\TwinCAT\IO Api</AdditionalLibraryDirectories>
+      <AdditionalDependencies>clapack.lib;libf2c.lib;blas.lib;kernel32.lib;WINMM.lib;fmodex_vc.lib;sapi.lib;user32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;FcIoApi.lib;TCatIoDrv.lib</AdditionalDependencies>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
