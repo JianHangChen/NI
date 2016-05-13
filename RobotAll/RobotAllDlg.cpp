@@ -4574,25 +4574,25 @@ void gArmControlThread(void)
 
 			}
 
-
+			double tempAngle=0.15;
 
 			//20160506 first step rotation test go go go
 				if (gKineAll.stepIndex == 1)
 				{
 						
-					gKineAll.GenSmoothZMPShift_ZeroJerk(0,-0.3,gStepSample,gAngLPBuf);
-	
+					gKineAll.GenSmoothZMPShift_ZeroJerk(0,0,gStepSample/2,gAngLPBuf);
+					gKineAll.GenSmoothZMPShift_ZeroJerk(0,-tempAngle,gStepSample/2,gAngLPBuf+gStepSample/2);
 				}
 				else if (gKineAll.stepIndex == 2)
 				{
 						
-					gKineAll.GenSmoothZMPShift_ZeroJerk(-0.3,-0.3,gStepSample,gAngLPBuf);
+					gKineAll.GenSmoothZMPShift_ZeroJerk(-tempAngle,-tempAngle,gStepSample,gAngLPBuf);
 	
 				}
 				else if (gKineAll.stepIndex == 3)
 				{
-						
-					gKineAll.GenSmoothZMPShift_ZeroJerk(-0.3,0,gStepSample,gAngLPBuf);
+				    gKineAll.GenSmoothZMPShift_ZeroJerk(-tempAngle,0,gStepSample/2,gAngLPBuf);
+					gKineAll.GenSmoothZMPShift_ZeroJerk(0,0,gStepSample/2,gAngLPBuf+gStepSample/2);
 	
 				}
 				//else if(gKineAll.stepIndex == 4)
@@ -7644,7 +7644,7 @@ void gInitWalkStraight(int StepInput, double StepLength)
 			gKineAll.StepHeight[i] = 30;	// 0516 WZ 改 原本20
 		} 
 		else{
-			gKineAll.StepHeight[i] = 40;
+			gKineAll.StepHeight[i] = 20;
 		}	
 	}
 
@@ -7764,7 +7764,7 @@ void gInitWalkStraight(int StepInput, double StepLength)
 		gGroundHeight[i] = 0.0;
 
 	//20160506 first step rotation test go go go
-	gGroundHeight[2]=20.0;
+	gGroundHeight[2]=10.0;
 
 	gFstpY[0] = 0;
 	gFstpY[1] = 0;
