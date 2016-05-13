@@ -1,0 +1,273 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{CF95B5E8-05D2-48E1-9E9F-A1F86EF970DB}</ProjectGuid>
+    <RootNamespace>RobotAll</RootNamespace>
+    <Keyword>MFCProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Program Files\Microsoft Speech SDK 5.1\Include;C:\Program Files\FMOD SoundSystem\FMOD Programmers API Win32;C:\Program Files\CLAPACK-3.1.1\INCLUDE;C:\Program Files\CLAPACK-3.1.1\LIB\Win32;.\;./;OpenGL;Pattern Generator;USB &amp; CAN protocol;IMU;COGestimate;C:\TwinCAT\IO Api</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Program Files\CLAPACK-3.1.1\LIB\Win32;OpenGL;C:\Program Files\FMOD SoundSystem\FMOD Programmers API Win32\api\lib;C:\Program Files\Microsoft Speech SDK 5.1\Lib\i386;IMU;C:\TwinCAT\IO Api</AdditionalLibraryDirectories>
+      <AdditionalDependencies>clapack.lib;libf2c.lib;blas.lib;kernel32.lib;WINMM.lib;fmodex_vc.lib;sapi.lib;user32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;FcIoApi.lib;TCatIoDrv.lib</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Microsoft Speech SDK 5.1\Include;C:\Program Files (x86)\FMOD SoundSystem\FMOD Programmers API Windows;C:\Program Files (x86)\CLAPACK-3.1.1\INCLUDE;C:\Program Files (x86)\CLAPACK-3.1.1\Win32;.\;./;OpenGL;Pattern Generator;USB &amp; CAN protocol;C:\ode-0.12\ode\src;C:\ode-0.12\include;C:\TwinCAT\IO Api;IMU;COGestimate</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>
+      </ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>clapack.lib;libf2c.lib;blas.lib;kernel32.lib;WINMM.lib;fmodex_vc.lib;sapi.lib;user32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib</IgnoreSpecificDefaultLibraries>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\FMOD SoundSystem\FMOD Programmers API Windows\api\lib;C:\Program Files (x86)\Microsoft Speech SDK 5.1\Lib\i386;C:\Program Files (x86)\CLAPACK-3.1.1\LIB\Win32;OpenGL;C:\TwinCAT\IO Api</AdditionalLibraryDirectories>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="DataLen_RA.txt" />
+    <None Include="ReadMe.txt" />
+    <None Include="res\RobotAll.ico" />
+    <None Include="res\RobotAll.rc2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="COGestimate\ekfilter.hpp" />
+    <ClInclude Include="COGestimate\estimate.h" />
+    <ClInclude Include="COGestimate\kfilter.hpp" />
+    <ClInclude Include="COGestimate\kmatrix.hpp" />
+    <ClInclude Include="COGestimate\plane.h" />
+    <ClInclude Include="GLModel.h" />
+    <ClInclude Include="IMU\i3dmgx3_Cmd.h" />
+    <ClInclude Include="IMU\i3dmgx3_Cont.h" />
+    <ClInclude Include="IMU\i3dmgx3_Errors.h" />
+    <ClInclude Include="IMU\i3dmgx3_readWriteDR.h" />
+    <ClInclude Include="IMU\i3dmgx3_Serial.h" />
+    <ClInclude Include="IMU\i3dmgx3_Utils.h" />
+    <ClInclude Include="IMU\i3dmgx3_Utils_CM.h" />
+    <ClInclude Include="IMU\IMU.h" />
+    <ClInclude Include="MainLoops.h" />
+    <ClInclude Include="model_ARM\LArm01_100.h" />
+    <ClInclude Include="model_ARM\LArm02_100.h" />
+    <ClInclude Include="model_ARM\LArm03_100.h" />
+    <ClInclude Include="model_ARM\LArm04_100.h" />
+    <ClInclude Include="model_ARM\LArm05_100.h" />
+    <ClInclude Include="model_ARM\LArm06_100.h" />
+    <ClInclude Include="model_ARM\RArm01_100.h" />
+    <ClInclude Include="model_ARM\RArm02_100.h" />
+    <ClInclude Include="model_ARM\RArm03_100.h" />
+    <ClInclude Include="model_ARM\RArm04_100.h" />
+    <ClInclude Include="model_ARM\RArm05_100.h" />
+    <ClInclude Include="model_ARM\RArm06_100.h" />
+    <ClInclude Include="model_ARM\waist01_100.h" />
+    <ClInclude Include="model_ARM\waist02_100.h" />
+    <ClInclude Include="model_LEG\center_100.h" />
+    <ClInclude Include="model_LEG\LLeg01_100.h" />
+    <ClInclude Include="model_LEG\LLeg02_100.h" />
+    <ClInclude Include="model_LEG\LLeg03_100.h" />
+    <ClInclude Include="model_LEG\LLeg04_100.h" />
+    <ClInclude Include="model_LEG\LLeg05_100.h" />
+    <ClInclude Include="model_LEG\LLeg06_100.h" />
+    <ClInclude Include="model_LEG\RLeg01_100.h" />
+    <ClInclude Include="model_LEG\RLeg02_100.h" />
+    <ClInclude Include="model_LEG\RLeg03_100.h" />
+    <ClInclude Include="model_LEG\RLeg04_100.h" />
+    <ClInclude Include="model_LEG\RLeg05_100.h" />
+    <ClInclude Include="model_LEG\RLeg06_100.h" />
+    <ClInclude Include="OpenGL\glut.h" />
+    <ClInclude Include="OpenGL\OpenGLControl.h" />
+    <ClInclude Include="OpenGL\OpenGLDevice.h" />
+    <ClInclude Include="Pattern Generator\FwdKine.h" />
+    <ClInclude Include="Pattern Generator\GlobalConst.h" />
+    <ClInclude Include="Pattern Generator\Kine.h" />
+    <ClInclude Include="Pattern Generator\LQSISolver.h" />
+    <ClInclude Include="Pattern Generator\MatOptInterface.h" />
+    <ClInclude Include="Pattern Generator\neck.h" />
+    <ClInclude Include="Pattern Generator\QuaternionRotation.h" />
+    <ClInclude Include="Pattern Generator\YMatLite.h" />
+    <ClInclude Include="QFwdKine.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="RobotAll.h" />
+    <ClInclude Include="RobotAllDlg.h" />
+    <ClInclude Include="Sensor\laser.h" />
+    <ClInclude Include="Sensor\UrgLaser.h" />
+    <ClInclude Include="SlidingModeCtrl.h" />
+    <ClInclude Include="SoundPlay.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="StlReader.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="Task_LLeg.h" />
+    <ClInclude Include="Task_RLeg.h" />
+    <ClInclude Include="TriMeshReaderBase.h" />
+    <ClInclude Include="TwinCAT_COM.h" />
+    <ClInclude Include="USB &amp; CAN protocol\ConstIO.h" />
+    <ClInclude Include="USB &amp; CAN protocol\DataProcess.h" />
+    <ClInclude Include="USB &amp; CAN protocol\serial_port.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="COGestimate\ekfilter.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="COGestimate\estimate.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="COGestimate\kmatrix.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="COGestimate\kstatics.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="COGestimate\plane.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="GLModel.cpp" />
+    <ClCompile Include="IMU\i3dmgx3_CM_CMD.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="IMU\i3dmgx3_readWriteDR.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="IMU\i3dmgx3_SerialWin.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="IMU\i3dmgx3_Utils.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="IMU\i3dmgx3_Utils_CM.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="IMU\IMU.cpp" />
+    <ClCompile Include="MainLoops.cpp" />
+    <ClCompile Include="mfcconsole.cpp" />
+    <ClCompile Include="OpenGL\OpenGLControl.cpp" />
+    <ClCompile Include="OpenGL\OpenGLDevice.cpp" />
+    <ClCompile Include="Pattern Generator\FwdKine.cpp" />
+    <ClCompile Include="Pattern Generator\Kine.cpp" />
+    <ClCompile Include="Pattern Generator\LQSISolver.cpp" />
+    <ClCompile Include="Pattern Generator\MatOptInterface.cpp" />
+    <ClCompile Include="Pattern Generator\neck.cpp" />
+    <ClCompile Include="Pattern Generator\QuaternionRotation.cpp" />
+    <ClCompile Include="Pattern Generator\YMatLite.cpp" />
+    <ClCompile Include="QFwdKine.cpp" />
+    <ClCompile Include="RobotAll.cpp" />
+    <ClCompile Include="RobotAllDlg.cpp">
+      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ClCompile Include="Sensor\laser.cpp" />
+    <ClCompile Include="Sensor\UrgLaser.cpp" />
+    <ClCompile Include="SlidingModeCtrl.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="SoundPlay.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="TwinCAT_COM.cpp" />
+    <ClCompile Include="USB &amp; CAN protocol\DataProcess.cpp" />
+    <ClCompile Include="USB &amp; CAN protocol\serial_port.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="RobotAll.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties RESOURCE_FILE="RobotAll.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

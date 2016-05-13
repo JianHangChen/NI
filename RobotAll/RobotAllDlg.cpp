@@ -7644,7 +7644,7 @@ void gInitWalkStraight(int StepInput, double StepLength)
 			gKineAll.StepHeight[i] = 30;	// 0516 WZ 改 原本20
 		} 
 		else{
-			gKineAll.StepHeight[i] = 20;
+			gKineAll.StepHeight[i] = 40;
 		}	
 	}
 
