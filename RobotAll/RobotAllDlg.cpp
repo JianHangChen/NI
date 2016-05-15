@@ -7644,7 +7644,7 @@ void gInitWalkStraight(int StepInput, double StepLength)
 			gKineAll.StepHeight[i] = 30;	// 0516 WZ 改 原本20
 		} 
 		else{
-			gKineAll.StepHeight[i] = 20;
+			gKineAll.StepHeight[i] = 30;
 		}	
 	}
 
@@ -7737,49 +7737,44 @@ void gInitWalkStraight(int StepInput, double StepLength)
 	//		gFstpY[5] = 520;
 	//			gFstpY[6] = 570;
 	//				gFstpY[7] = 570;
-	//for (int i = 1 ; i < gNumOfStep ; i++)
-	//{
-	//	gFstpY[i*2+1] = gFstpY[i*2-1]+StrideY;
-	//	gFstpY[i*2+2] = gFstpY[i*2]+StrideY;
-	//}
+	for (int i = 1 ; i < gNumOfStep ; i++)
+	{
+		gFstpY[i*2+1] = gFstpY[i*2-1]+StrideY;
+		gFstpY[i*2+2] = gFstpY[i*2]+StrideY;
+	}
 
-	//gFstpY[gNumOfStep-4] = gFstpY[gNumOfStep-5];
-	//if (gKineAll.selSupport[gNumOfStep-4] == 0) // right support
-	//{
-	//	gFstpY[gNumOfStep-4] = gFstpY[gNumOfStep-5] - 160*sin((gLRotAngZ[gNumOfStep-4]+gRRotAngZ[gNumOfStep-4])/2.0);
-	//}
-	//else
-	//{
-	//	gFstpY[gNumOfStep-4] = gFstpY[gNumOfStep-5] + 160*sin((gLRotAngZ[gNumOfStep-4]+gRRotAngZ[gNumOfStep-4])/2.0);
-	//}
+	gFstpY[gNumOfStep-4] = gFstpY[gNumOfStep-5];
+	if (gKineAll.selSupport[gNumOfStep-4] == 0) // right support
+	{
+		gFstpY[gNumOfStep-4] = gFstpY[gNumOfStep-5] - 160*sin((gLRotAngZ[gNumOfStep-4]+gRRotAngZ[gNumOfStep-4])/2.0);
+	}
+	else
+	{
+		gFstpY[gNumOfStep-4] = gFstpY[gNumOfStep-5] + 160*sin((gLRotAngZ[gNumOfStep-4]+gRRotAngZ[gNumOfStep-4])/2.0);
+	}
 
-	//gFstpY[gNumOfStep-4] = (gFstpY[gNumOfStep-4]+gFstpY[gNumOfStep-5])/2.0;
+	gFstpY[gNumOfStep-4] = (gFstpY[gNumOfStep-4]+gFstpY[gNumOfStep-5])/2.0;
 
-	//for (int i = gNumOfStep - 3 ; i < gNumOfStep+5 ; i++)
-	//{
-	//	gFstpY[i] = gFstpY[gNumOfStep-4];
-	//}
+	for (int i = gNumOfStep - 3 ; i < gNumOfStep+5 ; i++)
+	{
+		gFstpY[i] = gFstpY[gNumOfStep-4];
+	}
 
 	for (int i = 0 ; i < gNumOfStep+25 ; i++)
 		gGroundHeight[i] = 0.0;
 
 	//20160506 first step rotation test go go go
-	gGroundHeight[2]=10.0;
+	gGroundHeight[2]=11.5;
 
-	gFstpY[0] = 0;
-	gFstpY[1] = 0;
-	gFstpY[2] = 150;
-	gFstpY[3] = 300;
-	gFstpY[4] = 430;
-	gFstpY[5] = 430;
-	gFstpY[6] = 430;
-	gFstpY[7] = 430;
-	//gFstpY[8] = 430;
-	//gFstpY[9] = 430;
-	//gFstpY[10] = 430;
-	//gFstpY[11] = 430;
-	//gFstpY[12] = 430;
-	//gFstpY[13] = 430;
+	//gFstpY[0] = 0; 0
+	//gFstpY[1] = 0; 0
+	//gFstpY[2] = 150; 100 
+	//gFstpY[3] = 300; 200 
+	//gFstpY[4] = 430; 300 
+	//gFstpY[5] = 430; 300 
+	//gFstpY[6] = 430; 300
+	//gFstpY[7] = 430; 300
+
 
 	//20160506 first step rotation test end
 
