@@ -4574,9 +4574,11 @@ void gArmControlThread(void)
 
 			}
 
-			double tempAngle=0.15;
+			
 
 			//20160506 first step rotation test go go go
+
+			double tempAngle=0.13143;//0.13143;
 				if (gKineAll.stepIndex == 1)
 				{
 						
@@ -5368,8 +5370,8 @@ void gIMUdata(void){
 	if (gFlagReadForceSensor==1)
 	{
 		  #if TwinCAT_Mode
-		  printf("Wait 5 seconds for TwinCAT...\n");
-		  Sleep(5000);
+		  //printf("Wait 5 seconds for TwinCAT...\n");
+		 // Sleep(5000);
 		  TCAT=new TwinCAT_COM();		  
 		  gDeleteLogFile();
 		  #else
@@ -7625,7 +7627,7 @@ void gInitWalkStraight(int StepInput, double StepLength)
 
 	******************************************************************/
 	gNumOfStep = StepInput; // 包含初始、轉換與preivew的總步數
-	gCOGDown = 25;//9;//36; // 愈少膝蓋愈直 比較像人 也比較省力
+	gCOGDown = 25;//9;//36;25 // 愈少膝蓋愈直 比較像人 也比較省力
 	if(gNumOfStep==7)//Specific Ver. Warn.
 		checkonestep = 1;
 	gKineAll.FlagSumoMode = 0;
@@ -7765,6 +7767,17 @@ void gInitWalkStraight(int StepInput, double StepLength)
 
 	//20160506 first step rotation test go go go
 	gGroundHeight[2]=11.5;
+
+
+	gFstpY[0] = 0; 
+	gFstpY[1] = 0; 
+	gFstpY[2] = 100; 
+	gFstpY[3] = 230; 
+	gFstpY[4] = 360; 
+	gFstpY[5] = 360; 
+	gFstpY[6] = 360; 
+	gFstpY[7] = 360; 
+
 
 	//gFstpY[0] = 0; 0
 	//gFstpY[1] = 0; 0

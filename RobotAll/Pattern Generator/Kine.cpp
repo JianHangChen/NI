@@ -5674,7 +5674,7 @@ void Kine::Werr(double Rnow[9],double Rref[9],double werr[3])
 	//InvSqMat(Rinv,3);//test
 	//MatMulAB(Rinv ,3,3,Rref , 3,3, Rerr); //test
 	MatMulAtB(Rnow ,3,3,Rref , 3,3, Rerr);
-	double eps=0.01;
+	double eps=1.0e-5;//0.01
 	el[0]=Rerr[7]-Rerr[5];
 	el[1]=Rerr[2]-Rerr[6];
 	el[2]=Rerr[3]-Rerr[1];
@@ -6119,23 +6119,23 @@ void Kine::IKSolve(double* tCOG, double* tSwing, double* tRSwing, double* tRFixe
 			}
 			InvSqMat(tempJ,Jf->MRow);
 			MatMulAB(tempJ,Jf->MRow,Jf->MRow,dxLeg,18,1,dthLeg);
-			for (int i = 6 ; i < 18 ; i++)
-			{
-				if (fabs(dthLeg[i]) > MaxJointAngleChange)
-				{
-					if(dthLeg[i]>0){
-						dthLeg[i]=MaxJointAngleChange;//20160505
-					}
-					else{
-						dthLeg[i]=-MaxJointAngleChange;
-					}
-					//cout<<dthLeg[i]/3.1415926*180*200<<endl;
-					//printf("\n警告!! 解出之第%d軸角速度過快 達到 每秒%f度\n",i+1,dthLeg[i]/3.1415926*180*200);WZ0419
-					//printf("可能是輸入軌跡不連續或者IK爆掉\n");WZ0419
-					//SimuFail = 1; // WZ over90deg/per sec -> fail     
-					//system("pause");
-				}
-			}
+			//for (int i = 6 ; i < 18 ; i++)
+			//{
+			//	if (fabs(dthLeg[i]) > MaxJointAngleChange)
+			//	{
+			//		if(dthLeg[i]>0){
+			//			dthLeg[i]=MaxJointAngleChange;//20160505
+			//		}
+			//		else{
+			//			dthLeg[i]=-MaxJointAngleChange;
+			//		}
+			//		//cout<<dthLeg[i]/3.1415926*180*200<<endl;
+			//		//printf("\n警告!! 解出之第%d軸角速度過快 達到 每秒%f度\n",i+1,dthLeg[i]/3.1415926*180*200);WZ0419
+			//		//printf("可能是輸入軌跡不連續或者IK爆掉\n");WZ0419
+			//		//SimuFail = 1; // WZ over90deg/per sec -> fail     
+			//		//system("pause");
+			//	}
+			//}
 
 			for (int i = 0 ; i < 6 ; i++)
 			{
